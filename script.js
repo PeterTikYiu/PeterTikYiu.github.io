@@ -61,3 +61,38 @@ fetch('data/projects.json')
     const container = document.getElementById('projectsGrid');
     if(container) container.innerHTML = '<p class="text-slate-500">No projects found. Add some to <code>data/projects.json</code>.</p>';
   });
+
+// Contact form: progressive enhancement using Formspree
+const contactForm = document.getElementById('contact-form');
+if(contactForm){
+  contactForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const status = document.getElementById('contact-status');
+    const submitBtn = document.getElementById('contact-submit');
+    if(submitBtn) submitBtn.disabled = true;
+    if(status) status.textContent = 'Sending...';
+
+    // Build form data
+    const formData = new FormData(contactForm);
+    try{
+      const res = await fetch(contactForm.action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: formData
+      });
+      if(res.ok){
+        if(status) status.textContent = 'Message sent — thank you!';
+        contactForm.reset();
+      } else {
+        const json = await res.json().catch(()=>null);
+        const err = (json && json.error) ? json.error : 'Failed to send message.';
+        if(status) status.textContent = err;
+      }
+    }catch(err){
+      if(status) status.textContent = 'Network error. Please try again later.';
+    } finally {
+      if(submitBtn) submitBtn.disabled = false;
+      setTimeout(()=>{ if(status) status.textContent = ''; }, 6000);
+    }
+  });
+}
