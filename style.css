@@ -1,5 +1,6 @@
 /* Minimal overrides and utility styles (Tailwind handles most layout) */
 html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+.transition-theme{transition:background-color .25s ease,color .25s ease}
 .project-card{
 	background:#ffffff;
 	border:1px solid #e6e9ef;
@@ -8,10 +9,44 @@ html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,"Helvetica 
 	box-shadow:0 1px 2px rgba(2,6,23,0.06);
 	transition:transform .15s ease,box-shadow .15s ease;
 }
-.project-card img{border-radius:6px;width:100%;height:auto;display:block}
-.dark .project-card{background:#0f1724;border-color:#1f2937}
+.project-card img{border-radius:0.5rem;width:100%;height:auto;display:block}
+[html.dark] .project-card{background:#0f1724;border-color:#1f2937}
 .reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
 .reveal.visible{opacity:1;transform:none}
 
 /* small helper for inputs when Tailwind unavailable */
 input,textarea,button{font-family:inherit}
+
+/* Profile avatar: keep aspect ratio, avoid vertical/horizontal squeeze */
+.profile-avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 9999px; /* circular */
+  overflow: hidden;
+  display: inline-block;
+  flex: 0 0 auto;
+  background-color: var(--muted-bg, #eee);
+}
+
+/* Ensure the image fills container without distortion */
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;   /* crop to fill while preserving aspect ratio */
+  object-position: center;
+}
+
+/* Responsive sizes */
+@media (max-width: 640px) {
+  .profile-avatar {
+    width: 112px;
+    height: 112px;
+  }
+}
+@media (min-width: 1024px) {
+  .profile-avatar {
+    width: 192px;
+    height: 192px;
+  }
+}
