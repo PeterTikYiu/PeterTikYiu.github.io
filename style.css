@@ -10,7 +10,7 @@ html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,"Helvetica 
 	transition:transform .15s ease,box-shadow .15s ease;
 }
 .project-card img{border-radius:0.5rem;width:100%;height:auto;display:block}
-[html.dark] .project-card{background:#0f1724;border-color:#1f2937}
+html.dark .project-card{background:#0f1724;border-color:#1f2937}
 .reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
 .reveal.visible{opacity:1;transform:none}
 
