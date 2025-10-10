@@ -21,8 +21,13 @@
           var stored = localStorage.getItem('theme-dark');
           var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
           var dark = (stored === null) ? preferDark : (stored === '1');
-          if(dark) document.documentElement.classList.add('dark');
-          else document.documentElement.classList.remove('dark');
+          if(dark){
+            document.documentElement.classList.add('dark');
+            document.body && document.body.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.body && document.body.classList.remove('dark');
+          }
         }catch(e){}
       })();
     </script>

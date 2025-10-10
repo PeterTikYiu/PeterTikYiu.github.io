@@ -4,8 +4,13 @@ function isSystemDark(){
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 function applyTheme(dark){
-  if (dark) document.documentElement.classList.add('dark');
-  else document.documentElement.classList.remove('dark');
+  if (dark) {
+    document.documentElement.classList.add('dark');
+    document.body && document.body.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+    document.body && document.body.classList.remove('dark');
+  }
   const icon = document.getElementById('theme-icon');
   if (icon) icon.textContent = dark ? '🌙' : '🌞';
 }
