@@ -3,6 +3,12 @@
     "title": "Weather App",
     "description": "Displays live weather data using OpenWeatherMap API.",
     "image": "assets/images/weather-app.png",
-    "link": "https://github.com/yourusername/weather-app"
+    "link": "https://github.com/PeterTikYiu/weather-app"
+  },
+  {
+    "title": "Weather App2",
+    "description": "Displays live weather data using OpenWeatherMap API.",
+    "image": "assets/images/weather-app.png",
+    "link": "https://github.com/PeterTikYiu/weather-app"
   }
 ]
