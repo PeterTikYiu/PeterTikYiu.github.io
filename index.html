@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portfolio</title>
+    <!-- Tailwind via CDN for quick styling (use class strategy for dark mode) -->
+    <script>
+      // Configure Tailwind to use the class strategy for dark mode so toggling
+      // the `dark` class on the <html> element will apply `dark:` utilities.
+      tailwind = window.tailwind || {};
+      tailwind.config = tailwind.config || {};
+      tailwind.config.darkMode = 'class';
+      // Make the config available for the CDN script which reads window.tailwind
+      window.tailwind = tailwind;
+    </script>
+    <script>
+      // Apply theme as early as possible to avoid a flash of (wrong) theme.
+      (function(){
+        try{
+          var stored = localStorage.getItem('theme-dark');
+          var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var dark = (stored === null) ? preferDark : (stored === '1');
+          if(dark) document.documentElement.classList.add('dark');
+          else document.documentElement.classList.remove('dark');
+        }catch(e){}
+      })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body class="bg-white text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100">
+    <header class="max-w-5xl mx-auto p-6 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <img src="assets/images/image1.jpeg" alt="profile" class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <div>
+          <h1 class="text-2xl font-semibold">Man Tik Yiu</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Front-End Developer</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a href="assets/resume.pdf" download class="hidden sm:inline-block bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-2 rounded">Download Resume</a>
+        <button id="theme-toggle" aria-label="Toggle theme" class="p-2 rounded bg-slate-100 dark:bg-slate-800 hover:opacity-90">
+          <span id="theme-icon">🌗</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 pb-20">
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-12">
+        <div>
+          <h2 class="text-4xl font-bold mb-4">Hello, I’m Man Tik.</h2>
+          <p class="text-lg text-slate-600 dark:text-slate-300 mb-6">I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.</p>
+          <div class="flex gap-3">
+            <a href="#projects" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">View Projects</a>
+            <a href="#contact" class="inline-block border border-slate-200 dark:border-slate-700 px-4 py-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800">Contact Me</a>
+          </div>
+        </div>
+        <div class="flex justify-center md:justify-end">
+          <img src="assets/images/hero-placeholder.png" alt="hero" class="w-64 h-64 object-cover rounded-lg shadow-md bg-slate-100 dark:bg-slate-800" />
+        </div>
+      </section>
+
+      <section id="projects" class="mb-12">
+        <h3 class="text-2xl font-semibold mb-4">Projects</h3>
+        <div id="projectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </section>
+
+      <section id="contact" class="mb-12">
+        <h3 class="text-2xl font-semibold mb-4">Contact</h3>
+        <form class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl" onsubmit="return false;">
+          <input type="text" name="name" placeholder="Your Name" required class="p-3 border rounded bg-white dark:bg-slate-800" />
+          <input type="email" name="email" placeholder="Your Email" required class="p-3 border rounded bg-white dark:bg-slate-800" />
+          <textarea name="message" placeholder="Message" required class="p-3 border rounded col-span-1 sm:col-span-2 bg-white dark:bg-slate-800"></textarea>
+          <div class="col-span-1 sm:col-span-2">
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Send Message</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="max-w-5xl mx-auto p-6 text-center text-sm text-slate-500">
+      © Your Name — Built with HTML, Tailwind CSS, and JavaScript
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
