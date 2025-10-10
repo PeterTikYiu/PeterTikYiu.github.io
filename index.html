@@ -6,38 +6,46 @@
     <title>Portfolio</title>
     <!-- Tailwind via CDN for quick styling (use class strategy for dark mode) -->
     <script>
-      // Configure Tailwind to use the class strategy for dark mode so toggling
-      // the `dark` class on the <html> element will apply `dark:` utilities.
-      tailwind = window.tailwind || {};
-      tailwind.config = tailwind.config || {};
-      tailwind.config.darkMode = 'class';
-      // Make the config available for the CDN script which reads window.tailwind
-      window.tailwind = tailwind;
+      // Set Tailwind config for dark mode
+      window.tailwind = {
+        config: { darkMode: 'class' }
+      };
     </script>
     <script>
-      // Apply theme as early as possible to avoid a flash of (wrong) theme.
+      // Apply theme ASAP: add/remove 'dark' class on <html> only
       (function(){
-        try{
-          var stored = localStorage.getItem('theme-dark');
-          var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var dark = (stored === null) ? preferDark : (stored === '1');
-          if(dark){
+        try {
+          var THEMES = { LIGHT: 'light', DARK: 'dark' };
+          var stored = localStorage.getItem('theme-state');
+          var theme = (stored === THEMES.LIGHT || stored === THEMES.DARK)
+            ? stored
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? THEMES.DARK : THEMES.LIGHT);
+
+          if (theme === THEMES.DARK) {
             document.documentElement.classList.add('dark');
-            document.body && document.body.classList.add('dark');
           } else {
             document.documentElement.classList.remove('dark');
-            document.body && document.body.classList.remove('dark');
           }
-        }catch(e){}
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch(e) {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
       })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
   </head>
-  <body class="bg-white text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100">
-    <header class="max-w-5xl mx-auto p-6 flex items-center justify-between">
+  <body class="bg-white text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100 transition-theme">
+    <header class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 max-w-5xl mx-auto p-6 flex items-center justify-between">
     <div class="flex items-center gap-4">
-      <img src="assets/images/profile_picture.jpg" alt="profile" class="w-16 h-12 rounded-lg bg-slate-200 dark:bg-slate-700" />
+      <div class="hero-profile">
+        <!-- replaced existing img with stable avatar container -->
+        <div class="profile-avatar" aria-hidden="true">
+          <img src="assets/images/profile_picture.jpg" alt="Profile picture" />
+        </div>
+      </div>
+
       <div>
           <h1 class="text-2xl font-semibold">Man Tik Yiu</h1>
           <p class="text-sm text-slate-500 dark:text-slate-400">Front-End Developer</p>
@@ -52,24 +60,24 @@
       </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-6 pb-20">
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-12">
+    <main class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-theme max-w-6xl mx-auto px-8 pb-24">
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
         <div>
-          <h2 class="text-4xl font-bold mb-4">Hello, I’m Man Tik.</h2>
-          <p class="text-lg text-slate-600 dark:text-slate-300 mb-6">I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.</p>
-          <div class="flex gap-3">
-            <a href="#projects" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">View Projects</a>
-            <a href="#contact" class="inline-block border border-slate-200 dark:border-slate-700 px-4 py-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800">Contact Me</a>
+          <h2 class="text-5xl font-bold mb-6">Hello, I’m Man Tik.</h2>
+          <p class="text-xl text-slate-600 dark:text-slate-300 mb-8">I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.</p>
+          <div class="flex gap-4">
+            <a href="#projects" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700 text-lg">View Projects</a>
+            <a href="#contact" class="inline-block border border-slate-200 dark:border-slate-700 px-6 py-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 text-lg">Contact Me</a>
           </div>
         </div>
         <div class="flex justify-center md:justify-end">
-          <img src="assets/images/resume_preview.png" alt="hero" class="w-64 h-64 object-cover rounded-lg shadow-md bg-slate-100 dark:bg-slate-800" />
+          <img src="assets/images/resume_preview.png" alt="hero" class="w-80 h-80 object-cover rounded-xl shadow-lg bg-slate-100 dark:bg-slate-800" />
         </div>
       </section>
 
       <section id="projects" class="mb-12">
         <h3 class="text-2xl font-semibold mb-4">Projects</h3>
-        <div id="projectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  <div id="projectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
       </section>
 
       <section id="contact" class="mb-12">

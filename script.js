@@ -1,37 +1,85 @@
-// Theme: initialize from localStorage
-const THEME_KEY = 'theme-dark';
-function isSystemDark(){
+// Theme: initialize from localStorage with explicit state management
+const THEME_KEY = 'theme-state';
+const THEMES = {
+  LIGHT: 'light',
+  DARK: 'dark'
+};
+
+function isSystemDark() {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
-function applyTheme(dark){
-  if (dark) {
+
+function getCurrentTheme() {
+  return document.documentElement.classList.contains('dark') ? THEMES.DARK : THEMES.LIGHT;
+}
+
+function applyTheme(theme) {
+  const isDark = theme === THEMES.DARK;
+  // Only toggle 'dark' class on <html> for Tailwind dark mode
+  if (isDark) {
     document.documentElement.classList.add('dark');
-    document.body && document.body.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
-    document.body && document.body.classList.remove('dark');
   }
+  document.documentElement.setAttribute('data-theme', theme);
+
+  // Update theme icon
   const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = dark ? '🌙' : '🌞';
+  if (icon) icon.textContent = isDark ? '🌙' : '🌞';
+
+  // Update button state
+  const toggle = document.getElementById('theme-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    toggle.setAttribute('data-theme-state', theme);
+  }
 }
-try{
-  const stored = localStorage.getItem(THEME_KEY);
-  const dark = stored === null ? isSystemDark() : stored === '1';
-  applyTheme(dark);
-}catch(e){ applyTheme(isSystemDark()); }
+
+// Initialize theme with fallback chain: localStorage -> system preference -> light
+function initTheme() {
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored && (stored === THEMES.LIGHT || stored === THEMES.DARK)) {
+      applyTheme(stored);
+    } else {
+      applyTheme(isSystemDark() ? THEMES.DARK : THEMES.LIGHT);
+    }
+  } catch(e) {
+    applyTheme(THEMES.LIGHT); // Safest fallback
+  }
+}
+
+// Call theme initialization
+initTheme();
 
 const toggle = document.getElementById('theme-toggle');
-if (toggle) toggle.addEventListener('click', () => {
-  const dark = !document.documentElement.classList.contains('dark');
-  applyTheme(dark);
-  try{ localStorage.setItem(THEME_KEY, dark ? '1' : '0'); }catch(e){}
-});
+if (toggle) {
+  toggle.addEventListener('click', () => {
+    const currentTheme = getCurrentTheme();
+    const newTheme = currentTheme === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK;
+    
+    applyTheme(newTheme);
+    
+    try {
+      localStorage.setItem(THEME_KEY, newTheme);
+    } catch(e) {
+      console.warn('Could not save theme preference:', e);
+    }
+  });
 
-// Reveal animation using IntersectionObserver
+  // Set initial button state
+  const currentTheme = getCurrentTheme();
+  toggle.setAttribute('aria-pressed', currentTheme === THEMES.DARK ? 'true' : 'false');
+  toggle.setAttribute('data-theme-state', currentTheme);
+} else {
+  console.error('Theme toggle button not found!');
+}
+
+// Reveal animation using IntersectionObserver with fade-in
 const observer = new IntersectionObserver((entries)=>{
   entries.forEach(entry=>{
     if(entry.isIntersecting){
-      entry.target.classList.add('visible');
+      entry.target.classList.add('visible', 'animate-fadeIn');
       observer.unobserve(entry.target);
     }
   });

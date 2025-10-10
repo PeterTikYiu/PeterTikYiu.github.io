@@ -1,18 +1,24 @@
 /* Minimal overrides and utility styles (Tailwind handles most layout) */
-html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+html,body{height:100%;margin:0;font-family:inherit}
 .transition-theme{transition:background-color .25s ease,color .25s ease}
-.project-card{
-	background:#ffffff;
-	border:1px solid #e6e9ef;
-	border-radius:0.5rem;
-	padding:1rem;
-	box-shadow:0 1px 2px rgba(2,6,23,0.06);
-	transition:transform .15s ease,box-shadow .15s ease;
-}
 .project-card img{border-radius:0.5rem;width:100%;height:auto;display:block}
-html.dark .project-card{background:#0f1724;border-color:#1f2937}
+/* Use Tailwind classes for card backgrounds and borders in HTML, not here. */
 .reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
 .reveal.visible{opacity:1;transform:none}
+/* Fade-in animation for reveal */
+.animate-fadeIn {
+  animation: fadeIn 0.7s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 
 /* small helper for inputs when Tailwind unavailable */
 input,textarea,button{font-family:inherit}
