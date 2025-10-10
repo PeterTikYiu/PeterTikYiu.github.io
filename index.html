@@ -36,7 +36,7 @@
     </script>
   </head>
   <body class="bg-white text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100 transition-theme">
-    <header class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 max-w-5xl mx-auto p-6 flex items-center justify-between">
+  <header class="custom-header max-w-5xl mx-auto p-6 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <div class="hero-profile">
         <!-- replaced existing img with stable avatar container -->
@@ -52,8 +52,8 @@
       </div>
 
       <div class="flex items-center gap-4">
-        <a href="assets/resume.pdf" download class="hidden sm:inline-block bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-2 rounded">Download Resume</a>
-        <button id="theme-toggle" aria-label="Toggle theme" class="p-2 rounded bg-slate-100 dark:bg-slate-800 hover:opacity-90">
+        <a href="assets/resume.pdf" download class="custom-btn hidden sm:inline-block px-3 py-2 rounded">Download Resume</a>
+        <button id="theme-toggle" aria-label="Toggle theme" class="custom-btn p-2 rounded">
           <span id="theme-icon">🌗</span>
         </button>
       </div>
@@ -70,7 +70,7 @@
           </div>
         </div>
         <div class="flex justify-center md:justify-end">
-          <img src="assets/images/resume_preview.png" alt="hero" class="w-80 h-80 object-cover rounded-xl shadow-lg bg-slate-100 dark:bg-slate-800" />
+          <img src="assets/images/resume_preview.png" alt="hero" class="w-48 h-48 object-cover rounded-xl shadow-lg bg-slate-100 dark:bg-slate-800" />
         </div>
       </section>
 
