@@ -104,16 +104,21 @@ document.addEventListener('DOMContentLoaded', function() {
   function renderProjects(projects){
     const container = document.getElementById('projectsGrid');
     if(!container) return;
-    container.innerHTML = projects.map(p=>`
-      <article class="project-card reveal">
-        <div class="mb-3 overflow-hidden rounded-md">
-          <img src="${p.image}" alt="${p.title}" class="w-full h-44 object-cover bg-slate-100 dark:bg-slate-700" />
-        </div>
-        <h4 class="text-lg font-semibold mb-1">${p.title}</h4>
-        <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">${p.description}</p>
-        <a href="${p.link}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">View Project →</a>
-      </article>
-    `).join('');
+    container.innerHTML = projects.map(p=>{
+      // Show only first 10 words of description
+      let desc = p.description.split(' ').slice(0, 10).join(' ');
+      if (p.description.split(' ').length > 10) desc += '...';
+      return `
+        <article class="project-card reveal">
+          <div class="mb-3 overflow-hidden rounded-md">
+            <img src="${p.image}" alt="${p.title}" class="w-full h-44 object-cover bg-slate-100 dark:bg-slate-700" />
+          </div>
+          <h4 class="text-lg font-semibold mb-1">${p.title}</h4>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">${desc}</p>
+          <a href="${p.link}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">View Project →</a>
+        </article>
+      `;
+    }).join('');
     observeReveals();
   }
 

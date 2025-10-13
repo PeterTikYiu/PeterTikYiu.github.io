@@ -1,3 +1,19 @@
+/* Artistic project card border and fixed size */
+.project-card {
+  border: 2px solid #e3e8f0;
+  border-radius: 1rem;
+  min-height: 340px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #f5f7fa 60%, #e3e8f0 100%);
+  transition: box-shadow 0.3s;
+}
+.dark .project-card {
+  border: 2px solid #1a2233 !important;
+  background: #1a2233 !important;
+}
+.project-card:hover {
+  box-shadow: 0 4px 24px 0 rgba(37,48,74,0.12);
+}
 /* Custom button color override for header buttons */
 .custom-header .custom-btn {
   background-color: #25304a !important;

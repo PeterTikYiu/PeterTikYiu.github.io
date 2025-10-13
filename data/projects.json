@@ -6,9 +6,9 @@
     "link": "https://github.com/PeterTikYiu/weather-app"
   },
   {
-    "title": "Weather App2",
-    "description": "Displays live weather data using OpenWeatherMap API.",
-    "image": "assets/images/weather-app.png",
-    "link": "https://github.com/PeterTikYiu/weather-app"
+    "title": "recipe-finder-ai",
+    "description": "AI-powered Recipe Finder that personalizes meals, calculates calories, and recommends healthy recipes based on your goals, preferences, and cuisine style.",
+    "image": "assets/images/recipe-finder-ai.png",
+    "link": "https://github.com/PeterTikYiu/recipe-finder-ai"
   }
 ]
