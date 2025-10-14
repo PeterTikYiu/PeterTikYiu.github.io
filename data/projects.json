@@ -3,12 +3,16 @@
     "title": "Weather App",
     "description": "Displays live weather data using OpenWeatherMap API.",
     "image": "assets/images/weather-app.png",
-    "link": "https://github.com/PeterTikYiu/weather-app"
+    "link": "https://github.com/PeterTikYiu/weather-app",
+    "demo": "https://petertikyiu.github.io/weather-app",
+    "tech": ["JavaScript", "HTML5", "CSS3", "API"]
   },
   {
-    "title": "recipe-finder-ai",
+    "title": "Recipe Finder AI",
     "description": "AI-powered Recipe Finder that personalizes meals, calculates calories, and recommends healthy recipes based on your goals, preferences, and cuisine style.",
     "image": "assets/images/recipe-finder-ai.png",
-    "link": "https://github.com/PeterTikYiu/recipe-finder-ai"
+    "link": "https://github.com/PeterTikYiu/recipe-finder-ai",
+    "demo": "https://petertikyiu.github.io/recipe-finder-ai",
+    "tech": ["JavaScript", "AI", "API", "CSS3"]
   }
 ]

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "JavaScript",
+    "icon": "🟨",
+    "level": "Advanced"
+  },
+  {
+    "name": "HTML5",
+    "icon": "🏗️",
+    "level": "Expert"
+  },
+  {
+    "name": "CSS3",
+    "icon": "🎨",
+    "level": "Expert"
+  },
+  {
+    "name": "Tailwind CSS",
+    "icon": "💨",
+    "level": "Advanced"
+  },
+  {
+    "name": "React",
+    "icon": "⚛️",
+    "level": "Intermediate"
+  },
+  {
+    "name": "Node.js",
+    "icon": "🟢",
+    "level": "Intermediate"
+  },
+  {
+    "name": "Git",
+    "icon": "📚",
+    "level": "Advanced"
+  },
+  {
+    "name": "Figma",
+    "icon": "🎯",
+    "level": "Intermediate"
+  }
+]

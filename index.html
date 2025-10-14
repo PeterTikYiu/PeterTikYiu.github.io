@@ -36,7 +36,8 @@
     </script>
   </head>
   <body class="bg-white text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100 transition-theme">
-  <header class="custom-header max-w-5xl mx-auto p-6 flex items-center justify-between">
+    <header class="custom-header w-full p-6">
+      <div class="max-w-5xl mx-auto flex items-center justify-between">
     <div class="flex items-center gap-4">
       <div class="hero-profile">
         <!-- replaced existing img with stable avatar container -->
@@ -47,7 +48,7 @@
 
       <div>
           <h1 class="text-2xl font-semibold">Man Tik Yiu</h1>
-          <p class="text-sm text-slate-500 dark:text-slate-400">Front-End Developer</p>
+          <p class="text-sm">Front-End Developer</p>
         </div>
       </div>
 
@@ -57,21 +58,61 @@
           <span id="theme-icon">🌗</span>
         </button>
       </div>
-    </header>
-
-    <main class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-theme max-w-6xl mx-auto px-8 pb-24">
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
+      </div>
+    </header>    <main class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-theme max-w-6xl mx-auto px-8 pb-24">
+      <section class="hero-section grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16 py-16">
         <div class="intro-slide">
-          <h2 class="text-5xl font-bold mb-6">Hello, I’m Man Tik.</h2>
+          <h2 class="text-5xl font-bold mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Hello, I’m Man Tik.</h2>
           <p class="text-xl text-slate-600 dark:text-slate-300 mb-8">I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.</p>
-          <div class="flex gap-4">
-            <a href="#projects" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700 text-lg">View Projects</a>
-            <a href="#contact" class="inline-block border border-slate-200 dark:border-slate-700 px-6 py-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 text-lg">Contact Me</a>
+          <div class="flex gap-4 flex-wrap">
+            <a href="#projects" class="btn-primary">
+              <span>View Projects</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+              </svg>
+            </a>
+            <a href="#contact" class="btn-secondary">
+              <span>Contact Me</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+            </a>
           </div>
         </div>
         <div class="flex justify-center md:justify-end">
-          <img src="assets/images/resume_preview.png" alt="hero" class="w-48 h-48 object-cover rounded-xl shadow-lg bg-slate-100 dark:bg-slate-800" />
+          <div class="relative">
+            <img src="assets/images/resume_preview.png" alt="hero" class="w-48 h-48 object-cover rounded-xl shadow-2xl bg-slate-100 dark:bg-slate-800 transform hover:scale-105 transition-transform duration-300" />
+            <div class="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl opacity-20 blur-lg -z-10"></div>
+          </div>
         </div>
+      </section>
+
+      <section id="about" class="mb-16">
+        <h3 class="text-2xl font-semibold mb-8 text-center">About Me</h3>
+        <div class="max-w-4xl mx-auto">
+          <div id="aboutContent" class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div id="experienceSection" class="space-y-6">
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Work Experience</h4>
+              <div id="experienceList"></div>
+            </div>
+            <div id="educationSection" class="space-y-6">
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Education</h4>
+              <div id="educationList"></div>
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Certifications</h4>
+              <div id="certificationsList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="skills" class="mb-16">
+        <h3 class="text-2xl font-semibold mb-8 text-center">Skills & Technologies</h3>
+        <div id="skillsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto"></div>
+      </section>
+
+      <section id="languages" class="mb-16">
+        <h3 class="text-2xl font-semibold mb-8 text-center">Languages</h3>
+        <div id="languagesGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"></div>
       </section>
 
       <section id="projects" class="mb-12">
@@ -80,16 +121,55 @@
       </section>
 
       <section id="contact" class="mb-12">
-        <h3 class="text-2xl font-semibold mb-4">Contact</h3>
-        <form id="contact-form" action="https://formspree.io/f/xyznneqv" method="POST" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
-          <input type="text" name="name" placeholder="Your Name" required class="p-3 border rounded bg-white dark:bg-slate-800" />
-          <input type="email" name="email" placeholder="Your Email" required class="p-3 border rounded bg-white dark:bg-slate-800" />
-          <textarea name="message" placeholder="Message" required class="p-3 border rounded col-span-1 sm:col-span-2 bg-white dark:bg-slate-800"></textarea>
-          <div class="col-span-1 sm:col-span-2 flex items-center gap-4">
-            <button type="submit" id="contact-submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Send Message</button>
-            <div id="contact-status" class="text-sm text-slate-600 dark:text-slate-300"></div>
+        <h3 class="text-2xl font-semibold mb-8 text-center">Get In Touch</h3>
+
+        <div class="max-w-4xl mx-auto mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="contact-info space-y-4">
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Contact Information</h4>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <span class="text-indigo-600 dark:text-indigo-400">📧</span>
+                  <span class="text-slate-600 dark:text-slate-300">yiumantik22@gmail.com</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-indigo-600 dark:text-indigo-400">📱</span>
+                  <span class="text-slate-600 dark:text-slate-300">+44 7877 276208</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-indigo-600 dark:text-indigo-400">📍</span>
+                  <span class="text-slate-600 dark:text-slate-300">109 Vallea court, Red bank, Manchester M4 4FE</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-indigo-600 dark:text-indigo-400">💼</span>
+                  <a href="https://www.linkedin.com/in/man-tik-yiu9470a510b/" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">LinkedIn Profile</a>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-indigo-600 dark:text-indigo-400">💻</span>
+                  <a href="https://github.com/PeterTikYiu" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">GitHub Profile</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="contact-form">
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Send a Message</h4>
+              <form id="contact-form" action="https://formspree.io/f/xyznneqv" method="POST" class="space-y-4">
+                <input type="text" name="name" placeholder="Your Name" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600" />
+                <input type="email" name="email" placeholder="Your Email" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600" />
+                <textarea name="message" placeholder="Message" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-32 resize-none"></textarea>
+                <div class="flex items-center gap-4">
+                  <button type="submit" id="contact-submit" class="btn-primary">
+                    <span id="submit-text">Send Message</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                  </button>
+                  <div id="contact-status" class="text-sm text-slate-600 dark:text-slate-300"></div>
+                </div>
+              </form>
+            </div>
           </div>
-        </form>
+        </div>
       </section>
     </main>
 

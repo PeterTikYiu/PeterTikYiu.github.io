@@ -1,0 +1,15 @@
+[
+  {
+    "position": "Full-Stack Engineer (Internship)",
+    "company": "ladybirds ai.ltd",
+    "location": "MANCHESTER",
+    "period": "October 2025 - October 2025",
+    "achievements": [
+      "Architected and deployed innovative inCall features, enhancing user experience",
+      "Developed comprehensive datasets for improved speech recognition and intent classification",
+      "Monitored data pipelines for seamless logging and evaluation processes",
+      "Facilitated integration of AskMyGP workflows in pilot deployments to optimise operations",
+      "Led QA efforts for AI outputs, focusing on transcription accuracy and data integrity"
+    ]
+  }
+]

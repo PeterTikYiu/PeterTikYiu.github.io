@@ -1,0 +1,27 @@
+[
+  {
+    "language": "English",
+    "proficiency": "Fluent",
+    "flag": "🇺🇸"
+  },
+  {
+    "language": "Chinese (Cantonese)",
+    "proficiency": "Fluent",
+    "flag": "🇭🇰"
+  },
+  {
+    "language": "Chinese (Mandarin)",
+    "proficiency": "Fluent",
+    "flag": "🇨🇳"
+  },
+  {
+    "language": "Spanish",
+    "proficiency": "Elementary",
+    "flag": "🇪🇸"
+  },
+  {
+    "language": "German",
+    "proficiency": "Elementary",
+    "flag": "🇩🇪"
+  }
+]
