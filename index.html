@@ -140,40 +140,79 @@
           <span data-i18n="sections.contact">Get In Touch</span>
         </h3>
 
-        <div class="max-w-4xl mx-auto mb-8">
+        <div class="max-w-5xl mx-auto">
+          <!-- Highlights -->
+          <div class="contact-badges grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+            <div class="badge">
+              <i data-lucide="clock" class="w-4 h-4"></i>
+              <span>Avg. response: 24h</span>
+            </div>
+            <div class="badge">
+              <i data-lucide="map-pin" class="w-4 h-4"></i>
+              <span>Manchester, UK</span>
+            </div>
+            <div class="badge">
+              <i data-lucide="globe" class="w-4 h-4"></i>
+              <span>GMT/BST</span>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="contact-info space-y-4">
+            <!-- Left: Contact info card -->
+            <div class="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 glass-effect">
               <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4" data-i18n="contact.info">Contact Information</h4>
-              <div class="space-y-3">
-                <div class="flex items-center gap-3">
-                  <span class="text-indigo-600 dark:text-indigo-400">📧</span>
-                  <span class="text-slate-600 dark:text-slate-300">yiumantik22@gmail.com</span>
+
+              <div class="space-y-4">
+                <div class="flex items-center gap-3 contact-item">
+                  <i data-lucide="mail" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                  <a href="mailto:yiumantik22@gmail.com" class="text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400">yiumantik22@gmail.com</a>
+                  <button class="icon-btn" type="button" data-copy="yiumantik22@gmail.com" aria-label="Copy email"><i data-lucide="copy" class="w-4 h-4"></i></button>
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-indigo-600 dark:text-indigo-400">📱</span>
-                  <span class="text-slate-600 dark:text-slate-300">+44 7877 276208</span>
+                <div class="flex items-center gap-3 contact-item">
+                  <i data-lucide="phone" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                  <a href="tel:+447877276208" class="text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400">+44 7877 276208</a>
+                  <button class="icon-btn" type="button" data-copy="+447877276208" aria-label="Copy phone"><i data-lucide="copy" class="w-4 h-4"></i></button>
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-indigo-600 dark:text-indigo-400">📍</span>
-                  <span class="text-slate-600 dark:text-slate-300">109 Vallea court, Red bank, Manchester M4 4FE</span>
+                <div class="flex items-center gap-3 contact-item">
+                  <i data-lucide="map-pin" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                  <span class="text-slate-700 dark:text-slate-300">109 Vallea court, Red bank, Manchester M4 4FE</span>
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-indigo-600 dark:text-indigo-400">💼</span>
-                  <a href="https://www.linkedin.com/in/man-tik-yiu9470a510b/" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">LinkedIn Profile</a>
+
+                <div class="mt-4 flex flex-wrap items-center gap-3">
+                  <a href="https://www.linkedin.com/in/man-tik-yiu9470a510b/" target="_blank" class="btn-secondary">
+                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                    <span>LinkedIn</span>
+                  </a>
+                  <a href="https://github.com/PeterTikYiu" target="_blank" class="btn-secondary">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                    <span>GitHub</span>
+                  </a>
+                  <a href="https://wa.me/447877276208" target="_blank" class="btn-secondary">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                    <span>WhatsApp</span>
+                  </a>
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-indigo-600 dark:text-indigo-400">💻</span>
-                  <a href="https://github.com/PeterTikYiu" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">GitHub Profile</a>
-                </div>
+
+                <div id="copy-status" class="sr-only" aria-live="polite"></div>
               </div>
             </div>
 
-            <div class="contact-form">
+            <!-- Right: Contact form card -->
+            <div class="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 glass-effect">
               <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4" data-i18n="contact.sendMessage">Send a Message</h4>
               <form id="contact-form" action="https://formspree.io/f/xyznneqv" method="POST" class="space-y-4">
-                <input type="text" name="name" placeholder="Your Name" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600" data-i18n-placeholder="contact.namePlaceholder" />
-                <input type="email" name="email" placeholder="Your Email" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600" data-i18n-placeholder="contact.emailPlaceholder" />
-                <textarea name="message" placeholder="Message" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-32 resize-none" data-i18n-placeholder="contact.messagePlaceholder"></textarea>
+                <div class="input-with-icon">
+                  <i data-lucide="user" class="input-icon"></i>
+                  <input type="text" name="name" placeholder="Your Name" required class="w-full p-3 pl-10 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-i18n-placeholder="contact.namePlaceholder" />
+                </div>
+                <div class="input-with-icon">
+                  <i data-lucide="mail" class="input-icon"></i>
+                  <input type="email" name="email" placeholder="Your Email" required class="w-full p-3 pl-10 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-i18n-placeholder="contact.emailPlaceholder" />
+                </div>
+                <div class="input-with-icon">
+                  <i data-lucide="message-square" class="input-icon top-3"></i>
+                  <textarea name="message" placeholder="Message" required class="w-full p-3 pt-10 pl-10 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500" data-i18n-placeholder="contact.messagePlaceholder"></textarea>
+                </div>
                 <div class="flex items-center gap-4">
                   <button type="submit" id="contact-submit" class="btn-primary">
                     <span id="submit-text" data-i18n="contact.sendButton">Send Message</span>

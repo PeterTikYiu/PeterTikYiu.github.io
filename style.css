@@ -518,6 +518,36 @@ button:focus {
   background: #f1f1f1;
 }
 
+/* Contact section polish */
+.contact-item { color: inherit; }
+.input-with-icon { position: relative; }
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #64748b; /* slate-500 */
+  pointer-events: none;
+}
+.input-with-icon .input-icon.top-3 { top: 0.75rem; transform: none; }
+.dark .input-with-icon .input-icon { color: #94a3b8; /* slate-400 */ }
+
+/* Contact badges */
+.contact-badges .badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.5rem .75rem;border:1px solid rgba(99,102,241,.2);
+  border-radius:.75rem;color:#475569;background:rgba(99,102,241,.06)
+}
+.dark .contact-badges .badge{color:#cbd5e1;border-color:rgba(129,140,248,.25);background:rgba(129,140,248,.12)}
+
+/* Small icon button (copy) */
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:.5rem;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;transition:all .2s ease}
+.icon-btn:hover{background:#eef2ff;color:#4338ca;border-color:#c7d2fe;transform:translateY(-1px)}
+.dark .icon-btn{background:#1f2937;border-color:#374151;color:#cbd5e1}
+.dark .icon-btn:hover{background:#312e81;border-color:#4338ca;color:#e0e7ff}
+
 ::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 4px;

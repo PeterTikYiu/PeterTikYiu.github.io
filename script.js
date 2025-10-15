@@ -1242,6 +1242,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Contact: copy-to-clipboard for email/phone with live feedback
+  const copyButtons = document.querySelectorAll('.icon-btn[data-copy]');
+  if(copyButtons.length){
+    const status = document.getElementById('copy-status');
+    copyButtons.forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const text = btn.getAttribute('data-copy') || '';
+        try{
+          await navigator.clipboard.writeText(text);
+          if(status){ status.classList.remove('sr-only'); status.textContent = 'Copied to clipboard'; }
+          setTimeout(()=>{ if(status){ status.classList.add('sr-only'); status.textContent=''; } }, 1500);
+        }catch(e){
+          if(status){ status.classList.remove('sr-only'); status.textContent = 'Copy failed'; }
+          setTimeout(()=>{ if(status){ status.classList.add('sr-only'); status.textContent=''; } }, 1500);
+        }
+      });
+    });
+  }
+
   // Add smooth scrolling for anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
