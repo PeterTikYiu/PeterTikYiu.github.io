@@ -1,16 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
-  try {
-    // Left-to-right intro animation (JS only, from far left)
-    var intro = document.querySelector('.intro-slide');
-    if (intro) {
-      intro.style.opacity = '0';
-      intro.style.transform = 'translateX(-300px)'; // farther left
-      setTimeout(function() {
-        intro.style.transition = 'opacity 1.1s cubic-bezier(.4,0,.2,1), transform 1.1s cubic-bezier(.4,0,.2,1)';
-        intro.style.opacity = '1';
-        intro.style.transform = 'translateX(0)';
-      }, 200);
-    }
+  // Left-to-right intro animation (JS only, from far left)
+  var intro = document.querySelector('.intro-slide');
+  if (intro) {
+    intro.style.opacity = '0';
+    intro.style.transform = 'translateX(-300px)'; // farther left
+    setTimeout(function() {
+      intro.style.transition = 'opacity 1.1s cubic-bezier(.4,0,.2,1), transform 1.1s cubic-bezier(.4,0,.2,1)';
+      intro.style.opacity = '1';
+      intro.style.transform = 'translateX(0)';
+    }, 200);
+  }
 
   // Theme: initialize from localStorage with explicit state management
   const THEME_KEY = 'theme-state';
@@ -76,23 +75,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.add('theme-transitioning');
+      const currentTheme = getCurrentTheme();
+      const newTheme = currentTheme === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK;
+      applyTheme(newTheme);
       try {
-        document.documentElement.classList.add('theme-transitioning');
-        const currentTheme = getCurrentTheme();
-        const newTheme = currentTheme === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK;
-        applyTheme(newTheme);
-        try {
-          localStorage.setItem(THEME_KEY, newTheme);
-        } catch(e) {
-          console.warn('Could not save theme preference:', e);
-        }
-        setTimeout(() => {
-          document.documentElement.classList.remove('theme-transitioning');
-        }, 300);
-      } catch (error) {
-        console.error('Theme switching error:', error);
-        document.documentElement.classList.remove('theme-transitioning');
+        localStorage.setItem(THEME_KEY, newTheme);
+      } catch(e) {
+        console.warn('Could not save theme preference:', e);
       }
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transitioning');
+      }, 300);
     });
 
     // Set initial button state
@@ -117,6 +111,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Loading overlay and page-turn animation helpers
   const pageWrapper = document.getElementById('page-turn-wrapper');
   let isTransitioning = false;
+
+  // Loading overlay stubs (overlay removed from HTML) to avoid runtime errors
+  function showLoadingOverlay(){ /* no-op */ }
+  function hideLoadingOverlay(){ /* no-op */ }
 
   function pageTurnIn() {
     if (!pageWrapper) return Promise.resolve();
@@ -251,59 +249,6 @@ document.addEventListener('DOMContentLoaded', function() {
             "languages": "Languages",
             "projects": "Projects",
             "contact": "Get In Touch"
-          },
-          "contact": {
-            "info": "Contact Information",
-            "sendMessage": "Send a Message",
-            "namePlaceholder": "Your Name",
-            "emailPlaceholder": "Your Email",
-            "messagePlaceholder": "Message",
-            "sendButton": "Send Message",
-            "sending": "Sending...",
-            "sent": "Sent!",
-            "tryAgain": "Try Again",
-            "success": "✅ Message sent successfully!",
-            "error": "❌ Network error. Please try again later.",
-            "fail": "❌ Failed to send message."
-          },
-          "projects": {
-            "viewCode": "View Code",
-            "liveDemo": "Live Demo"
-          },
-          "certifications": [
-            {
-              "name": "Google Advanced Data Analytics Professional Certificate",
-              "issuer": "Google",
-              "year": "October 2024"
-            },
-            {
-              "name": "Mathematics for Machine Learning Specialization",
-              "issuer": "Imperial College London",
-              "year": "October 2024"
-            },
-            {
-              "name": "CS50X",
-              "issuer": "Harvard University",
-              "year": "September 2024"
-            },
-            {
-              "name": "CS50 Python",
-              "issuer": "Harvard University",
-              "year": "September 2024"
-            }
-          ],
-          "experience": {
-            "current": "Full-Stack Engineer (Internship)",
-            "company": "ladybirds ai.ltd",
-            "location": "MANCHESTER",
-            "period": "October 2025 - October 2025",
-            "achievements": [
-              "Architected and deployed innovative inCall features, enhancing user experience",
-              "Developed comprehensive datasets for improved speech recognition and intent classification",
-              "Monitored data pipelines for seamless logging and evaluation processes",
-              "Facilitated integration of AskMyGP workflows in pilot deployments to optimise operations",
-              "Led QA efforts for AI outputs, focusing on transcription accuracy and data integrity"
-            ]
           },
           "education": {
             "degree": "Diploma of Higher Education Computer Science",
@@ -602,6 +547,9 @@ document.addEventListener('DOMContentLoaded', function() {
         renderSkills();
         renderLanguages();
         await renderProjects();
+        // Pop-in animation on initial load
+        await pageTurnCardsIn();
+        // Also ensure any remaining reveal elements fade in
         triggerInitialAnimations();
       } else {
         // Fallback to embedded English
@@ -760,9 +708,11 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCertifications();
         renderSkills();
         renderLanguages();
-        renderProjects();
-        // Trigger animations for initially visible elements
-        triggerInitialAnimations();
+  renderProjects();
+  // Pop-in animation on initial load (fallback path)
+  await pageTurnCardsIn();
+  // Trigger animations for initially visible elements
+  triggerInitialAnimations();
       }
       hideLoadingOverlay();
     } catch(e) {
@@ -924,9 +874,11 @@ document.addEventListener('DOMContentLoaded', function() {
       renderCertifications();
       renderSkills();
       renderLanguages();
-      renderProjects();
-      // Trigger animations for initially visible elements
-      triggerInitialAnimations();
+  renderProjects();
+  // Pop-in animation on initial load (catch path)
+  await pageTurnCardsIn();
+  // Trigger animations for initially visible elements
+  triggerInitialAnimations();
     }
   }
 
@@ -934,46 +886,42 @@ document.addEventListener('DOMContentLoaded', function() {
   const langToggle = document.getElementById('lang-toggle');
   if (langToggle) {
     langToggle.addEventListener('click', async () => {
-      try {
-        if (isTransitioning) return;
-        isTransitioning = true;
-        langToggle.classList.add('loading');
-        const currentLang = document.documentElement.getAttribute('data-lang') || LANGUAGES.EN;
-        const langOrder = [LANGUAGES.EN, LANGUAGES.ZH, LANGUAGES.TW];
-        const currentIndex = langOrder.indexOf(currentLang);
-        const nextIndex = (currentIndex + 1) % langOrder.length;
-        const newLang = langOrder[nextIndex];
+      if (isTransitioning) return;
+      isTransitioning = true;
+      langToggle.classList.add('loading');
+      const currentLang = document.documentElement.getAttribute('data-lang') || LANGUAGES.EN;
+      const langOrder = [LANGUAGES.EN, LANGUAGES.ZH, LANGUAGES.TW];
+      const currentIndex = langOrder.indexOf(currentLang);
+      const nextIndex = (currentIndex + 1) % langOrder.length;
+      const newLang = langOrder[nextIndex];
 
-        const success = await loadLanguage(newLang);
-        if (success) {
-          applyLanguage(newLang);
-          renderExperience();
-          renderEducation();
-          renderCertifications();
-          renderSkills();
-          renderLanguages();
-          await renderProjects();
-          await new Promise(r => setTimeout(r, 1000));
-          await pageTurnCardsOut();
+      const success = await loadLanguage(newLang);
+      if (success) {
+        applyLanguage(newLang);
+        renderExperience();
+        renderEducation();
+        renderCertifications();
+        renderSkills();
+        renderLanguages();
+        await renderProjects();
+        await new Promise(r => setTimeout(r, 1000));
+        await pageTurnCardsOut();
 
-          // Reset animation states to prevent conflicts with page-turn
-          document.querySelectorAll('section').forEach(section => section.classList.remove('animate-in'));
-          document.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible', 'animate-fadeIn'));
+        // Reset animation states to prevent conflicts with page-turn
+        document.querySelectorAll('section').forEach(section => section.classList.remove('animate-in'));
+        document.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible', 'animate-fadeIn'));
 
-          updateTranslations();
-          await pageTurnCardsIn();
-          try {
-            localStorage.setItem(LANG_KEY, newLang);
-          } catch(e) {
-            console.warn('Could not save language preference:', e);
-          }
+        updateTranslations();
+        await pageTurnCardsIn();
+        try {
+          localStorage.setItem(LANG_KEY, newLang);
+        } catch(e) {
+          console.warn('Could not save language preference:', e);
         }
-      } catch (error) {
-        console.error('Language switching error:', error);
-      } finally {
-        langToggle.classList.remove('loading');
-        isTransitioning = false;
       }
+
+      langToggle.classList.remove('loading');
+      isTransitioning = false;
     });
   } else {
     console.error('Language toggle button not found!');
@@ -1049,12 +997,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load projects and render cards
   // Load projects and render project cards
   function renderProjects(){
-    const viewCodeText = currentTranslations.projects?.viewCode || 'View Code';
-    const liveDemoText = currentTranslations.projects?.liveDemo || 'Live Demo';
-    const projects = currentTranslations.projects?.items;
+    const viewCodeText = currentTranslations.projects.viewCode;
+    const liveDemoText = currentTranslations.projects.liveDemo;
+    const projects = currentTranslations.projects.items;
 
-    if (!projects || !Array.isArray(projects)) {
-      console.warn('Projects data not found or invalid in current language');
+    if (!projects) {
+      console.warn('Projects data not found in current language');
       return;
     }
 
@@ -1067,34 +1015,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
         container.innerHTML = projects.map((p, index)=>{
           const staticProject = staticProjects[index] || {};
-          // Show only first 10 words of description with safety checks
-          let desc = 'No description available';
-          if (p && p.description && typeof p.description === 'string') {
-            let words = p.description.split(' ');
-            desc = words.slice(0, 10).join(' ');
-            if (words.length > 10) desc += '...';
-          }
+          // Show only first 10 words of description
+          let desc = p.description.split(' ').slice(0, 10).join(' ');
+          if (p.description.split(' ').length > 10) desc += '...';
 
-          // Tech stack badges with safety checks
-          const techBadges = (staticProject.tech && Array.isArray(staticProject.tech)) ?
-            staticProject.tech.map(tech => `<span class="tech-badge">${tech}</span>`).join('') : '';
-
-          // Safe title access
-          const title = (p && p.title) ? p.title : 'Untitled Project';
+          // Tech stack badges
+          const techBadges = staticProject.tech ? staticProject.tech.map(tech => `<span class="tech-badge">${tech}</span>`).join('') : '';
 
           return `
             <article class="project-card reveal">
               <div class="image-container">
-                <img src="${staticProject.image || 'assets/images/placeholder.png'}" alt="${title}" class="w-full h-44 object-cover bg-slate-100 dark:bg-slate-700" />
+                <img src="${staticProject.image || 'assets/images/placeholder.png'}" alt="${p.title}" class="w-full h-44 object-cover bg-slate-100 dark:bg-slate-700" />
               </div>
               <div class="content-container">
-                <h4 class="text-lg font-semibold">${title}</h4>
+                <h4 class="text-lg font-semibold">${p.title}</h4>
                 <p class="text-sm">${desc}</p>
                 ${techBadges ? `<div class="tech-stack">${techBadges}</div>` : ''}
               </div>
               <div class="button-container">
-                <a href="${staticProject.link || '#'}" target="_blank" rel="noopener noreferrer" class="project-btn-primary">${currentTranslations.projects?.viewCode || 'View Code'}</a>
-                ${staticProject.demo ? `<a href="${staticProject.demo}" target="_blank" rel="noopener noreferrer" class="project-btn-secondary">${currentTranslations.projects?.liveDemo || 'Live Demo'}</a>` : ''}
+                <a href="${staticProject.link || '#'}" target="_blank" rel="noopener noreferrer" class="project-btn-primary">${viewCodeText}</a>
+                ${staticProject.demo ? `<a href="${staticProject.demo}" target="_blank" rel="noopener noreferrer" class="project-btn-secondary">${liveDemoText}</a>` : ''}
               </div>
             </article>
           `;
@@ -1113,15 +1053,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Load skills and render skill badges
   function renderSkills(){
-    try {
-      // Use translated content from current language file
-      const skills = currentTranslations.skills;
-      if (!skills) {
-        console.warn('Skills data not found in current language');
-        return;
-      }
-      const container = document.getElementById('skillsGrid');
-      if(!container) return;
+    // Use translated content from current language file
+    const skills = currentTranslations.skills;
+    if (!skills) {
+      console.warn('Skills data not found in current language');
+      return;
+    }
+    const container = document.getElementById('skillsGrid');
+    if(!container) return;
     container.innerHTML = skills.map(skill=>{
       return `
         <div class="skill-badge reveal group">
@@ -1138,10 +1077,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Skill badges will be observed by the global enhancedObserver
     observeDynamicItems();
     wireGlowEffect();
-  } catch (error) {
-    console.error('Error rendering skills:', error);
   }
-}
 
   // Load experience and render
   function renderExperience(){
@@ -1363,8 +1299,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize Lucide icons
   lucide.createIcons();
-  } catch (error) {
-    console.error('Portfolio initialization error:', error);
-    // Continue with basic functionality even if something fails
-  }
 });
