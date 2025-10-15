@@ -34,48 +34,50 @@
         }
       })();
     </script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   </head>
   <body class="bg-white text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100 transition-theme">
+    <div id="page-turn-wrapper" class="relative">
     <header class="custom-header w-full p-6">
       <div class="max-w-5xl mx-auto flex items-center justify-between">
-    <div class="flex items-center gap-4">
-      <div class="hero-profile">
-        <!-- replaced existing img with stable avatar container -->
-        <div class="profile-avatar" aria-hidden="true">
-          <img src="assets/images/profile_picture.jpg" alt="Profile picture" />
-        </div>
-      </div>
+        <div class="flex items-center gap-4">
+          <div class="hero-profile">
+            <!-- replaced existing img with stable avatar container -->
+            <div class="profile-avatar" aria-hidden="true">
+              <img src="assets/images/profile_picture.jpg" alt="Profile picture" />
+            </div>
+          </div>
 
-      <div>
-          <h1 class="text-2xl font-semibold">Man Tik Yiu</h1>
-          <p class="text-sm">Front-End Developer</p>
+          <div>
+            <h1 class="text-2xl font-semibold">Man Tik Yiu</h1>
+            <p class="text-sm">Front-End Developer</p>
+          </div>
         </div>
-      </div>
 
-      <div class="flex items-center gap-4">
-        <a href="assets/resume.pdf" download class="custom-btn hidden sm:inline-block px-3 py-2 rounded">Download Resume</a>
-        <button id="theme-toggle" aria-label="Toggle theme" class="custom-btn p-2 rounded">
-          <span id="theme-icon">🌗</span>
-        </button>
-      </div>
+        <div class="flex items-center gap-4">
+          <a href="assets/resume.pdf" download class="custom-btn hidden sm:inline-block px-3 py-2 rounded">Download Resume</a>
+          <button id="lang-toggle" aria-label="Switch language" class="custom-btn p-2 rounded relative">
+            <i data-lucide="languages" class="w-4 h-4"></i>
+            <span id="lang-icon" class="ml-1 text-xs">🇺🇸</span>
+          </button>
+          <button id="theme-toggle" aria-label="Toggle theme" class="custom-btn p-2 rounded flex items-center justify-center">
+            <span id="theme-icon"></span>
+          </button>
+        </div>
       </div>
     </header>    <main class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-theme max-w-6xl mx-auto px-8 pb-24">
       <section class="hero-section grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16 py-16">
         <div class="intro-slide">
-          <h2 class="text-5xl font-bold mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Hello, I’m Man Tik.</h2>
-          <p class="text-xl text-slate-600 dark:text-slate-300 mb-8">I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.</p>
+          <h2 class="text-5xl font-bold mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent" data-i18n="hero.title">Hello, I’m Man Tik.</h2>
+          <p class="text-xl text-slate-600 dark:text-slate-300 mb-8" data-i18n="hero.subtitle">I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.</p>
           <div class="flex gap-4 flex-wrap">
             <a href="#projects" class="btn-primary">
-              <span>View Projects</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-              </svg>
+              <span data-i18n="hero.viewProjects">View Projects</span>
+              <i data-lucide="arrow-down" class="w-4 h-4"></i>
             </a>
             <a href="#contact" class="btn-secondary">
-              <span>Contact Me</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-              </svg>
+              <span data-i18n="hero.contactMe">Contact Me</span>
+              <i data-lucide="mail" class="w-4 h-4"></i>
             </a>
           </div>
         </div>
@@ -88,45 +90,60 @@
       </section>
 
       <section id="about" class="mb-16">
-        <h3 class="text-2xl font-semibold mb-8 text-center">About Me</h3>
-        <div class="max-w-4xl mx-auto">
-          <div id="aboutContent" class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <div id="experienceSection" class="space-y-6">
-              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Work Experience</h4>
-              <div id="experienceList"></div>
+        <h3 class="text-2xl font-semibold mb-8 text-center flex items-center justify-center gap-2">
+          <i data-lucide="user" class="w-6 h-6"></i>
+          <span data-i18n="sections.about">About Me</span>
+        </h3>
+        <div class="max-w-6xl mx-auto">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-6">
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4" data-i18n="sections.workExperience">Work Experience</h4>
+              <div id="experienceList" class="grid gap-4"></div>
             </div>
-            <div id="educationSection" class="space-y-6">
-              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Education</h4>
-              <div id="educationList"></div>
-              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Certifications</h4>
-              <div id="certificationsList"></div>
+            <div class="space-y-6">
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4" data-i18n="sections.education">Education</h4>
+              <div id="educationList" class="grid gap-4"></div>
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4" data-i18n="sections.certifications">Certifications</h4>
+              <div id="certificationsList" class="grid gap-4"></div>
             </div>
           </div>
         </div>
       </section>
 
       <section id="skills" class="mb-16">
-        <h3 class="text-2xl font-semibold mb-8 text-center">Skills & Technologies</h3>
+        <h3 class="text-2xl font-semibold mb-8 text-center flex items-center justify-center gap-2">
+          <i data-lucide="code" class="w-6 h-6"></i>
+          <span data-i18n="sections.skillsTitle">Skills & Technologies</span>
+        </h3>
         <div id="skillsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto"></div>
       </section>
 
       <section id="languages" class="mb-16">
-        <h3 class="text-2xl font-semibold mb-8 text-center">Languages</h3>
-        <div id="languagesGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"></div>
+        <h3 class="text-2xl font-semibold mb-8 text-center flex items-center justify-center gap-2">
+          <i data-lucide="globe" class="w-6 h-6"></i>
+          <span data-i18n="sections.languages">Languages</span>
+        </h3>
+        <div id="languagesGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-4xl mx-auto"></div>
       </section>
 
       <section id="projects" class="mb-12">
-        <h3 class="text-2xl font-semibold mb-4">Projects</h3>
+        <h3 class="text-2xl font-semibold mb-4 flex items-center gap-2">
+          <i data-lucide="briefcase" class="w-6 h-6"></i>
+          <span data-i18n="sections.projects">Projects</span>
+        </h3>
   <div id="projectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
       </section>
 
       <section id="contact" class="mb-12">
-        <h3 class="text-2xl font-semibold mb-8 text-center">Get In Touch</h3>
+        <h3 class="text-2xl font-semibold mb-8 text-center flex items-center justify-center gap-2">
+          <i data-lucide="mail" class="w-6 h-6"></i>
+          <span data-i18n="sections.contact">Get In Touch</span>
+        </h3>
 
         <div class="max-w-4xl mx-auto mb-8">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="contact-info space-y-4">
-              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Contact Information</h4>
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4" data-i18n="contact.info">Contact Information</h4>
               <div class="space-y-3">
                 <div class="flex items-center gap-3">
                   <span class="text-indigo-600 dark:text-indigo-400">📧</span>
@@ -152,17 +169,15 @@
             </div>
 
             <div class="contact-form">
-              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Send a Message</h4>
+              <h4 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4" data-i18n="contact.sendMessage">Send a Message</h4>
               <form id="contact-form" action="https://formspree.io/f/xyznneqv" method="POST" class="space-y-4">
-                <input type="text" name="name" placeholder="Your Name" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600" />
-                <input type="email" name="email" placeholder="Your Email" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600" />
-                <textarea name="message" placeholder="Message" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-32 resize-none"></textarea>
+                <input type="text" name="name" placeholder="Your Name" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600" data-i18n-placeholder="contact.namePlaceholder" />
+                <input type="email" name="email" placeholder="Your Email" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600" data-i18n-placeholder="contact.emailPlaceholder" />
+                <textarea name="message" placeholder="Message" required class="w-full p-3 border rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-32 resize-none" data-i18n-placeholder="contact.messagePlaceholder"></textarea>
                 <div class="flex items-center gap-4">
                   <button type="submit" id="contact-submit" class="btn-primary">
-                    <span id="submit-text">Send Message</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                    </svg>
+                    <span id="submit-text" data-i18n="contact.sendButton">Send Message</span>
+                    <i data-lucide="send" class="w-4 h-4"></i>
                   </button>
                   <div id="contact-status" class="text-sm text-slate-600 dark:text-slate-300"></div>
                 </div>
@@ -173,10 +188,11 @@
       </section>
     </main>
 
-    <footer class="max-w-5xl mx-auto p-6 text-center text-sm text-slate-500">
+    <footer class="max-w-5xl mx-auto p-6 text-center text-sm text-slate-500" data-i18n="footer.copyright">
       © ManTik — Built with HTML, Tailwind CSS, and JavaScript
     </footer>
 
     <script src="script.js"></script>
+    </div> <!-- end page-turn-wrapper -->
   </body>
 </html>

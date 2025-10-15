@@ -1,24 +1,33 @@
-.project-card img {
-  width: 192px;
-  height: 192px;
+﻿.project-card img {
+  width: 100%;
+  height: 180px; /* Consistent height */
   object-fit: cover;
-  border-radius: 0.75rem;
+  border-radius: 0.75rem; /* More rounded for modern look */
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  transition: transform 0.3s ease;
+}
+
+.project-card:hover img {
+  transform: scale(1.02); /* Subtle zoom on hover */
 }
 /* Artistic project card border and fixed size */
 .project-card {
   border: 2px solid rgba(173, 216, 230, 0.4); /* slightly more opaque border */
   border-radius: 1rem;
-  min-height: 340px;
+  min-height: 440px; /* Slightly taller for better content distribution */
+  max-height: 500px; /* Allow more flexibility */
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.95); /* much more opaque white background in light mode */
+  background: rgba(255, 255, 255, 0.98); /* near-opaque white background in light mode */
   backdrop-filter: blur(8px); /* reduced blur for better readability */
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Ensure content is not clipped */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Start from top, let content flow naturally */
+  gap: 0.5rem; /* Add consistent spacing between sections */
 }
 
 .project-card::before {
@@ -28,7 +37,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(173, 216, 230, 0.05) 0%, rgba(173, 216, 230, 0.02) 100%);
+  background: linear-gradient(135deg, rgba(173, 216, 230, 0.03) 0%, rgba(173, 216, 230, 0.01) 100%);
   opacity: 1;
   transition: opacity 0.3s ease;
 }
@@ -39,7 +48,7 @@
 
 .dark .project-card {
   border: 2px solid rgba(71, 85, 105, 0.8) !important; /* slate-600 border */
-  background: rgba(15, 23, 42, 0.95) !important; /* slate-900 background with high opacity */
+  background: rgba(15, 23, 42, 0.98) !important; /* slate-900 background with high opacity */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
 }
 
@@ -48,30 +57,144 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
-/* Ensure proper text contrast in project cards */
+/* Enhanced text contrast in project cards */
 .project-card h4 {
-  color: #1f2937 !important; /* slate-800 for better contrast */
+  color: #0f172a !important; /* slate-900 for maximum contrast in light mode */
+  font-weight: 600 !important;
+  font-size: 1.125rem !important; /* Slightly larger for better hierarchy */
+  line-height: 1.4 !important;
+  margin-bottom: 0.75rem !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .project-card p {
-  color: #4b5563 !important; /* slate-600 for better contrast */
+  color: #374151 !important; /* slate-700 for excellent readability */
+  line-height: 1.6 !important;
+  margin-bottom: 1rem !important;
+  flex-grow: 1 !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  overflow: hidden;
 }
 
-.project-card a {
-  color: #1e40af !important; /* blue-700 for much better contrast */
-  font-weight: 500 !important;
+.dark .project-card h4 {
+  color: #f8fafc !important; /* near-white for dark mode */
 }
 
-.project-card a:hover {
-  color: #1d4ed8 !important; /* blue-600 for hover */
+.dark .project-card p {
+  color: #cbd5e1 !important; /* slate-300 for good contrast in dark mode */
 }
 
-.project-card a:nth-child(2) {
-  color: #047857 !important; /* emerald-700 for Live Demo link */
+.project-card .image-container {
+  margin-bottom: 1rem;
 }
 
-.project-card a:nth-child(2):hover {
-  color: #059669 !important; /* emerald-600 for Live Demo hover */
+.project-card .content-container {
+  flex-grow: 1;
+  margin-bottom: 1.5rem;
+}
+
+.project-card .button-container {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.project-card .button-container a {
+  position: relative !important;
+  z-index: 10 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 0.75rem !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3) !important;
+  min-width: 120px !important; /* Ensure consistent button width */
+  text-align: center !important;
+}
+
+.project-card .button-container a:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px 0 rgba(79, 70, 229, 0.4) !important;
+}
+
+.project-card .button-container a:focus {
+  outline: 2px solid #4f46e5 !important;
+  outline-offset: 2px !important;
+}
+
+/* Specific styling for primary button */
+.project-card .button-container .project-btn-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* Specific styling for secondary button */
+.project-card .button-container .project-btn-secondary {
+  background: transparent !important;
+  color: #4f46e5 !important;
+  border: 2px solid #4f46e5 !important;
+}
+
+.dark .project-card .button-container .project-btn-secondary {
+  color: #a78bfa !important;
+  border-color: #a78bfa !important;
+}
+
+.dark .project-card .button-container .project-btn-secondary:hover {
+  background: #a78bfa !important;
+  color: #1e1b4b !important;
+}
+
+/* Tech stack badges styling */
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  min-height: 2rem; /* Ensure consistent spacing */
+}
+
+.tech-badge {
+  background: #e0e7ff !important; /* indigo-100 */
+  color: #4338ca !important; /* indigo-800 */
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid #c7d2fe !important; /* indigo-200 */
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.tech-badge:hover {
+  background: #c7d2fe !important;
+  transform: translateY(-1px);
+}
+
+.dark .tech-badge {
+  background: #1e1b4b !important; /* indigo-950 */
+  color: #a5b4fc !important; /* indigo-300 */
+  border-color: #312e81 !important; /* indigo-900 */
+}
+
+.dark .tech-badge:hover {
+  background: #312e81 !important;
 }
 
 /* Fix contrast for all card types */
@@ -280,15 +403,7 @@ section { padding: 4rem 0; }
   color: #1e1b4b;
 }
 
-/* Enhanced card hover effects */
-.project-card {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.project-card:hover {
-  transform: translateY(-12px) scale(1.02);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
+/* Enhanced card hover effects - REMOVED DUPLICATE STYLES */
 
 /* Improved animations */
 @keyframes slideInFromLeft {
@@ -428,10 +543,26 @@ button:focus {
   background-color: #e3e8f0 !important; /* light grey in light mode */
   color: #333 !important; /* dark text */
   border: none !important;
+  transition: all 0.2s ease;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+.custom-header .custom-btn:hover {
+  background-color: #cbd5e1 !important; /* slightly darker grey on hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 .dark .custom-header .custom-btn {
   background-color: #25304a !important; /* original in dark mode */
   color: #f5f7fa !important;
+}
+.dark .custom-header .custom-btn:hover {
+  background-color: #334155 !important; /* slightly lighter on hover in dark mode */
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
 }
 /* Custom header color override */
 .custom-header {
@@ -448,6 +579,99 @@ html,body{height:100%;margin:0;font-family:inherit}
 /* Use Tailwind classes for card backgrounds and borders in HTML, not here. */
 .reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
 .reveal.visible{opacity:1;transform:none}
+
+/* Soft glow (gooming) effect for interactive cards */
+.glow-pick {
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glow-pick::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(120px 120px at var(--mx, 50%) var(--my, 50%), rgba(99,102,241,0.35), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  filter: blur(18px);
+}
+
+.glow-pick:hover::after,
+.glow-pick:focus-within::after {
+  opacity: 1;
+}
+
+.glow-pick:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -10px rgba(99,102,241,0.35);
+}
+
+.dark .glow-pick::after {
+  background: radial-gradient(120px 120px at var(--mx, 50%) var(--my, 50%), rgba(129,140,248,0.45), transparent 60%);
+  filter: blur(20px);
+}
+
+/* Focus ring for keyboard users */
+.glow-pick:focus-within {
+  outline: 2px solid rgba(99,102,241,0.6);
+  outline-offset: 2px;
+}
+
+/* Loading overlay visibility */
+#app-loading-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Page turn animation (Y-axis flip) */
+.page-turn-enter {
+  transform-origin: left center;
+  transform: perspective(1200px) rotateY(-90deg) scale(0.95);
+  opacity: 0;
+}
+
+.page-turn-active {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: perspective(1200px) rotateY(0deg) scale(1);
+  opacity: 1;
+}
+
+/* Special animation for intro card - slide down from top */
+.intro-slide.page-turn-enter {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.intro-slide.page-turn-active {
+  transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.intro-slide.page-turn-exit {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.intro-slide.page-turn-exit-active {
+  transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.page-turn-exit {
+  transform-origin: right center;
+  transform: perspective(1200px) rotateY(0deg) scale(1);
+  opacity: 1;
+}
+
+.page-turn-exit-active {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: perspective(1200px) rotateY(90deg) scale(0.95);
+  opacity: 0;
+}
 /* Fade-in animation for reveal */
 .animate-fadeIn {
   animation: fadeIn 0.7s cubic-bezier(.4,0,.2,1) both;
@@ -568,4 +792,73 @@ input,textarea,button{font-family:inherit}
   background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.02) 0%, transparent 50%),
               radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.02) 0%, transparent 50%);
   pointer-events: none;
+}
+
+/* Loading overlay show state */
+#app-loading-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Initial loading state - removed to show page immediately on refresh */
+
+/* Interactive button hover effects */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.dark button:hover {
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.6);
+}
+
+/* Profile image hover effect */
+.profile-avatar img {
+  border: 3px solid white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.dark .profile-avatar img {
+  border-color: #e2e8f0; /* slate-200 for dark mode */
+}
+
+.profile-avatar img:hover {
+  transform: scale(1.1);
+}
+
+/* Loading effect for language toggle */
+#lang-toggle.loading {
+  opacity: 0.8;
+  pointer-events: none;
+  position: relative;
+}
+
+#lang-toggle.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+#lang-toggle.loading .w-4,
+#lang-toggle.loading #lang-icon {
+  opacity: 0.3;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

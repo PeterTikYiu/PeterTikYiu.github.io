@@ -1,15 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Left-to-right intro animation (JS only, from far left)
-  var intro = document.querySelector('.intro-slide');
-  if (intro) {
-    intro.style.opacity = '0';
-    intro.style.transform = 'translateX(-300px)'; // farther left
-    setTimeout(function() {
-      intro.style.transition = 'opacity 1.1s cubic-bezier(.4,0,.2,1), transform 1.1s cubic-bezier(.4,0,.2,1)';
-      intro.style.opacity = '1';
-      intro.style.transform = 'translateX(0)';
-    }, 200);
-  }
+  try {
+    // Left-to-right intro animation (JS only, from far left)
+    var intro = document.querySelector('.intro-slide');
+    if (intro) {
+      intro.style.opacity = '0';
+      intro.style.transform = 'translateX(-300px)'; // farther left
+      setTimeout(function() {
+        intro.style.transition = 'opacity 1.1s cubic-bezier(.4,0,.2,1), transform 1.1s cubic-bezier(.4,0,.2,1)';
+        intro.style.opacity = '1';
+        intro.style.transform = 'translateX(0)';
+      }, 200);
+    }
 
   // Theme: initialize from localStorage with explicit state management
   const THEME_KEY = 'theme-state';
@@ -17,6 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
     LIGHT: 'light',
     DARK: 'dark'
   };
+
+  // SVG icons for theme toggle
+  const SUN_ICON = `<i data-lucide="sun" class="w-4 h-4"></i>`;
+  const MOON_ICON = `<i data-lucide="moon" class="w-4 h-4"></i>`;
 
   function isSystemDark() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -38,7 +43,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update theme icon
     const icon = document.getElementById('theme-icon');
-    if (icon) icon.textContent = isDark ? '🌙' : '🌞';
+    if (icon) {
+      icon.innerHTML = isDark ? MOON_ICON : SUN_ICON;
+    }
 
     // Update button state
     const toggle = document.getElementById('theme-toggle');
@@ -69,18 +76,23 @@ document.addEventListener('DOMContentLoaded', function() {
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
-      document.documentElement.classList.add('theme-transitioning');
-      const currentTheme = getCurrentTheme();
-      const newTheme = currentTheme === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK;
-      applyTheme(newTheme);
       try {
-        localStorage.setItem(THEME_KEY, newTheme);
-      } catch(e) {
-        console.warn('Could not save theme preference:', e);
-      }
-      setTimeout(() => {
+        document.documentElement.classList.add('theme-transitioning');
+        const currentTheme = getCurrentTheme();
+        const newTheme = currentTheme === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK;
+        applyTheme(newTheme);
+        try {
+          localStorage.setItem(THEME_KEY, newTheme);
+        } catch(e) {
+          console.warn('Could not save theme preference:', e);
+        }
+        setTimeout(() => {
+          document.documentElement.classList.remove('theme-transitioning');
+        }, 300);
+      } catch (error) {
+        console.error('Theme switching error:', error);
         document.documentElement.classList.remove('theme-transitioning');
-      }, 300);
+      }
     });
 
     // Set initial button state
@@ -90,6 +102,885 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
     console.error('Theme toggle button not found!');
   }
+
+  // Language switching functionality
+  const LANG_KEY = 'language-state';
+  const LANGUAGES = {
+    EN: 'en',
+    ZH: 'zh',
+    TW: 'tw'
+  };
+
+  // SVG icon for language toggle
+  const GLOBE_ICON = `<i data-lucide="languages" class="w-4 h-4"></i>`;
+
+  // Loading overlay and page-turn animation helpers
+  const pageWrapper = document.getElementById('page-turn-wrapper');
+  let isTransitioning = false;
+
+  function pageTurnIn() {
+    if (!pageWrapper) return Promise.resolve();
+    return new Promise(resolve => {
+      pageWrapper.classList.add('page-turn-enter');
+      // Force reflow to ensure transition applies
+      // eslint-disable-next-line no-unused-expressions
+      pageWrapper.offsetHeight;
+      pageWrapper.classList.add('page-turn-active');
+      pageWrapper.classList.remove('page-turn-exit', 'page-turn-exit-active');
+      setTimeout(() => {
+        pageWrapper.classList.remove('page-turn-enter', 'page-turn-active');
+        resolve();
+      }, 850);
+    });
+  }
+
+  function pageTurnOut() {
+    if (!pageWrapper) return Promise.resolve();
+    return new Promise(resolve => {
+      pageWrapper.classList.add('page-turn-exit');
+      // Force reflow
+      // eslint-disable-next-line no-unused-expressions
+      pageWrapper.offsetHeight;
+      pageWrapper.classList.add('page-turn-exit-active');
+      setTimeout(() => {
+        pageWrapper.classList.remove('page-turn-exit', 'page-turn-exit-active');
+        resolve();
+      }, 850);
+    });
+  }
+
+  // Card-only page turn helpers
+  function getCardElements() {
+    return Array.from(document.querySelectorAll(
+      '.project-card, .experience-item, .education-item, .certification-item, .skill-badge, .language-item, .intro-slide'
+    ));
+  }
+
+  function pageTurnCardsOut() {
+    const cards = getCardElements();
+    if (cards.length === 0) return Promise.resolve();
+    const staggerDelay = 25;
+    const animationDuration = 700;
+    cards.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('page-turn-exit');
+        // Force reflow
+        // eslint-disable-next-line no-unused-expressions
+        el.offsetHeight;
+        el.classList.add('page-turn-exit-active');
+      }, index * staggerDelay);
+    });
+    return new Promise(resolve => setTimeout(resolve, (cards.length - 1) * staggerDelay + animationDuration));
+  }
+
+  function pageTurnCardsIn() {
+    const cards = getCardElements();
+    if (cards.length === 0) return Promise.resolve();
+    const staggerDelay = 25;
+    const animationDuration = 700;
+    cards.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('page-turn-enter');
+        // Force reflow
+        // eslint-disable-next-line no-unused-expressions
+        el.offsetHeight;
+        el.classList.add('page-turn-active');
+        el.classList.remove('page-turn-exit', 'page-turn-exit-active');
+      }, (cards.length - 1 - index) * staggerDelay);
+    });
+    return new Promise(resolve => setTimeout(() => {
+      cards.forEach(el => {
+        el.classList.remove('page-turn-enter', 'page-turn-active');
+        el.classList.add('visible');
+        el.classList.remove('reveal'); // Remove reveal to keep cards always visible
+      });
+      resolve();
+    }, (cards.length - 1) * staggerDelay + animationDuration));
+  }
+
+  // Glow effect: track pointer position per card and set CSS vars for radial gradient
+  function wireGlowEffect() {
+    const cards = getCardElements();
+    cards.forEach(card => {
+      // Add class if not present
+      if (!card.classList.contains('glow-pick')) card.classList.add('glow-pick');
+      // Attach mousemove once
+      if (!card.__glowBound) {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const mx = ((e.clientX - rect.left) / rect.width) * 100 + '%';
+          const my = ((e.clientY - rect.top) / rect.height) * 100 + '%';
+          card.style.setProperty('--mx', mx);
+          card.style.setProperty('--my', my);
+        });
+        card.__glowBound = true;
+      }
+    });
+  }
+
+  let currentTranslations = {};
+
+  // Load language file
+  async function loadLanguage(lang) {
+    try {
+      const response = await fetch(`data/${lang}.json`);
+      if (!response.ok) throw new Error(`Failed to load ${lang}.json`);
+      currentTranslations = await response.json();
+      return true;
+    } catch (error) {
+      console.error('Error loading language file:', error);
+      // Fallback to embedded English data
+      if (lang === LANGUAGES.EN) {
+        currentTranslations = {
+          "nav": {
+            "viewProjects": "View Projects",
+            "contact": "Contact Me"
+          },
+          "hero": {
+            "title": "Hello, I'm Man Tik.",
+            "subtitle": "I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.",
+            "viewProjects": "View Projects",
+            "contactMe": "Contact Me"
+          },
+          "sections": {
+            "about": "About Me",
+            "workExperience": "Work Experience",
+            "education": "Education",
+            "certifications": "Certifications",
+            "skills": "Skills & Technologies",
+            "languages": "Languages",
+            "projects": "Projects",
+            "contact": "Get In Touch"
+          },
+          "contact": {
+            "info": "Contact Information",
+            "sendMessage": "Send a Message",
+            "namePlaceholder": "Your Name",
+            "emailPlaceholder": "Your Email",
+            "messagePlaceholder": "Message",
+            "sendButton": "Send Message",
+            "sending": "Sending...",
+            "sent": "Sent!",
+            "tryAgain": "Try Again",
+            "success": "✅ Message sent successfully!",
+            "error": "❌ Network error. Please try again later.",
+            "fail": "❌ Failed to send message."
+          },
+          "projects": {
+            "viewCode": "View Code",
+            "liveDemo": "Live Demo"
+          },
+          "certifications": [
+            {
+              "name": "Google Advanced Data Analytics Professional Certificate",
+              "issuer": "Google",
+              "year": "October 2024"
+            },
+            {
+              "name": "Mathematics for Machine Learning Specialization",
+              "issuer": "Imperial College London",
+              "year": "October 2024"
+            },
+            {
+              "name": "CS50X",
+              "issuer": "Harvard University",
+              "year": "September 2024"
+            },
+            {
+              "name": "CS50 Python",
+              "issuer": "Harvard University",
+              "year": "September 2024"
+            }
+          ],
+          "experience": {
+            "current": "Full-Stack Engineer (Internship)",
+            "company": "ladybirds ai.ltd",
+            "location": "MANCHESTER",
+            "period": "October 2025 - October 2025",
+            "achievements": [
+              "Architected and deployed innovative inCall features, enhancing user experience",
+              "Developed comprehensive datasets for improved speech recognition and intent classification",
+              "Monitored data pipelines for seamless logging and evaluation processes",
+              "Facilitated integration of AskMyGP workflows in pilot deployments to optimise operations",
+              "Led QA efforts for AI outputs, focusing on transcription accuracy and data integrity"
+            ]
+          },
+          "education": {
+            "degree": "Diploma of Higher Education Computer Science",
+            "institution": "UOW College",
+            "location": "Hong Kong",
+            "period": "September 2018 - September 2020"
+          },
+          "skills": [
+            {
+              "name": "JavaScript",
+              "icon": "🟨",
+              "level": "Advanced"
+            },
+            {
+              "name": "HTML5",
+              "icon": "🏗️",
+              "level": "Expert"
+            },
+            {
+              "name": "CSS3",
+              "icon": "🎨",
+              "level": "Expert"
+            },
+            {
+              "name": "Tailwind CSS",
+              "icon": "💨",
+              "level": "Advanced"
+            },
+            {
+              "name": "React",
+              "icon": "⚛️",
+              "level": "Intermediate"
+            },
+            {
+              "name": "Node.js",
+              "icon": "🟢",
+              "level": "Intermediate"
+            },
+            {
+              "name": "Git",
+              "icon": "📚",
+              "level": "Advanced"
+            },
+            {
+              "name": "Figma",
+              "icon": "🎯",
+              "level": "Intermediate"
+            }
+          ],
+          "languages": [
+            {
+              "language": "English",
+              "proficiency": "Fluent"
+            },
+            {
+              "language": "Chinese (Cantonese)",
+              "proficiency": "Fluent"
+            },
+            {
+              "language": "Chinese (Mandarin)",
+              "proficiency": "Fluent"
+            },
+            {
+              "language": "Spanish",
+              "proficiency": "Elementary"
+            },
+            {
+              "language": "German",
+              "proficiency": "Elementary"
+            }
+          ],
+          "footer": {
+            "copyright": "© ManTik — Built with HTML, Tailwind CSS, and JavaScript"
+          }
+        };
+        return true;
+      } else if (lang === LANGUAGES.TW) {
+        currentTranslations = {
+          "nav": {
+            "viewProjects": "查看專案",
+            "contact": "聯絡我"
+          },
+          "hero": {
+            "title": "你好，我是Man Tik。",
+            "subtitle": "我使用JavaScript和現代CSS構建響應式、可訪問的Web介面。歡迎來到我的作品集。",
+            "viewProjects": "查看專案",
+            "contactMe": "聯絡我"
+          },
+          "sections": {
+            "about": "關於我",
+            "workExperience": "工作經驗",
+            "education": "教育背景",
+            "certifications": "認證",
+            "skillsTitle": "技能與技術",
+            "languages": "語言能力",
+            "projects": "專案",
+            "contact": "聯絡方式"
+          },
+          "contact": {
+            "info": "聯絡資訊",
+            "sendMessage": "發送訊息",
+            "namePlaceholder": "您的姓名",
+            "emailPlaceholder": "您的電子郵件",
+            "messagePlaceholder": "訊息內容",
+            "sendButton": "發送訊息",
+            "sending": "發送中...",
+            "sent": "已發送！",
+            "tryAgain": "重試",
+            "success": "✅ 訊息發送成功！",
+            "error": "❌ 網路錯誤，請稍後重試。",
+            "fail": "❌ 發送失敗。"
+          },
+          "projects": {
+            "viewCode": "查看程式碼",
+            "liveDemo": "線上演示"
+          },
+          "certifications": [
+            {
+              "name": "Google 高級資料分析專業證書",
+              "issuer": "Google",
+              "year": "2024年10月"
+            },
+            {
+              "name": "機器學習數學專項課程",
+              "issuer": "倫敦帝國學院",
+              "year": "2024年10月"
+            },
+            {
+              "name": "CS50X",
+              "issuer": "哈佛大學",
+              "year": "2024年9月"
+            },
+            {
+              "name": "CS50 Python",
+              "issuer": "哈佛大學",
+              "year": "2024年9月"
+            }
+          ],
+          "experience": {
+            "current": "全端工程師（實習）",
+            "company": "ladybirds ai.ltd",
+            "location": "曼徹斯特",
+            "period": "2025年10月 - 2025年10月",
+            "achievements": [
+              "架構和部署創新的inCall功能，提升使用者體驗",
+              "開發全面的資料集以改善語音辨識和意圖分類",
+              "監控資料管道以確保無縫日誌記錄和評估流程",
+              "促進AskMyGP工作流程在試點部署中的整合以優化運營",
+              "領導AI輸出的品質保證工作，專注於轉錄準確性和資料完整性"
+            ]
+          },
+          "education": {
+            "degree": "電腦科學高等教育文憑",
+            "institution": "UOW學院",
+            "location": "香港",
+            "period": "2018年9月 - 2020年9月"
+          },
+          "skills": [
+            {
+              "name": "JavaScript",
+              "icon": "🟨",
+              "level": "高級"
+            },
+            {
+              "name": "HTML5",
+              "icon": "🏗️",
+              "level": "專家"
+            },
+            {
+              "name": "CSS3",
+              "icon": "🎨",
+              "level": "專家"
+            },
+            {
+              "name": "Tailwind CSS",
+              "icon": "💨",
+              "level": "高級"
+            },
+            {
+              "name": "React",
+              "icon": "⚛️",
+              "level": "中級"
+            },
+            {
+              "name": "Node.js",
+              "icon": "🟢",
+              "level": "中級"
+            },
+            {
+              "name": "Git",
+              "icon": "📚",
+              "level": "高級"
+            },
+            {
+              "name": "Figma",
+              "icon": "🎯",
+              "level": "中級"
+            }
+          ],
+          "languages": [
+            {
+              "language": "英語",
+              "proficiency": "流利"
+            },
+            {
+              "language": "中文（粵語）",
+              "proficiency": "流利"
+            },
+            {
+              "language": "中文（普通話）",
+              "proficiency": "流利"
+            },
+            {
+              "language": "西班牙語",
+              "proficiency": "基礎"
+            },
+            {
+              "language": "德語",
+              "proficiency": "基礎"
+            }
+          ],
+          "footer": {
+            "copyright": "© ManTik — 使用HTML、Tailwind CSS和JavaScript構建"
+          }
+        };
+        return true;
+      }
+      return false;
+    }
+  }
+
+  // Update all elements with data-i18n attributes
+  function updateTranslations() {
+    // Update elements with data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      const translation = getNestedValue(currentTranslations, key);
+      if (translation) {
+        element.textContent = translation;
+      }
+    });
+
+    // Update placeholders with data-i18n-placeholder
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+      const key = element.getAttribute('data-i18n-placeholder');
+      const translation = getNestedValue(currentTranslations, key);
+      if (translation) {
+        element.placeholder = translation;
+      }
+    });
+  }
+
+  // Helper function to get nested object values
+  function getNestedValue(obj, path) {
+    return path.split('.').reduce((current, key) => current && current[key], obj);
+  }
+
+  // Apply language
+  function applyLanguage(lang) {
+    document.documentElement.setAttribute('data-lang', lang);
+
+    // Update language toggle button
+    const langIcon = document.getElementById('lang-icon');
+    if (langIcon) {
+      if (lang === LANGUAGES.EN) {
+        langIcon.textContent = '🇺🇸';
+      } else if (lang === LANGUAGES.ZH) {
+        langIcon.textContent = '🇨🇳';
+      } else if (lang === LANGUAGES.TW) {
+        langIcon.textContent = '🇹🇼';
+      }
+    }
+  }
+
+  // Initialize language with fallback chain: localStorage -> en (default)
+  async function initLanguage() {
+    try {
+      const stored = localStorage.getItem(LANG_KEY);
+      let lang = LANGUAGES.EN; // default
+
+      if (stored && Object.values(LANGUAGES).includes(stored)) {
+        lang = stored;
+      }
+
+  // Initial sequence: show loader for 1s, then render (no page turn on initial load)
+      showLoadingOverlay();
+      await new Promise(r => setTimeout(r, 1000));
+
+      const success = await loadLanguage(lang);
+      if (success) {
+        applyLanguage(lang);
+        updateTranslations();
+        renderExperience();
+        renderEducation();
+        renderCertifications();
+        renderSkills();
+        renderLanguages();
+        await renderProjects();
+        triggerInitialAnimations();
+      } else {
+        // Fallback to embedded English
+        currentTranslations = {
+          "nav": {
+            "viewProjects": "View Projects",
+            "contact": "Contact Me"
+          },
+          "hero": {
+            "title": "Hello, I'm Man Tik.",
+            "subtitle": "I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.",
+            "viewProjects": "View Projects",
+            "contactMe": "Contact Me"
+          },
+          "sections": {
+            "about": "About Me",
+            "workExperience": "Work Experience",
+            "education": "Education",
+            "certifications": [
+              {
+                "name": "Google Advanced Data Analytics Professional Certificate",
+                "issuer": "Google",
+                "year": "October 2024"
+              },
+              {
+                "name": "Mathematics for Machine Learning Specialization",
+                "issuer": "Imperial College London",
+                "year": "October 2024"
+              },
+              {
+                "name": "CS50X",
+                "issuer": "Harvard University",
+                "year": "September 2024"
+              },
+              {
+                "name": "CS50 Python",
+                "issuer": "Harvard University",
+                "year": "September 2024"
+              }
+            ],
+            "skills": "Skills & Technologies",
+            "languages": "Languages",
+            "projects": "Projects",
+            "contact": "Get In Touch"
+          },
+          "contact": {
+            "info": "Contact Information",
+            "sendMessage": "Send a Message",
+            "namePlaceholder": "Your Name",
+            "emailPlaceholder": "Your Email",
+            "messagePlaceholder": "Message",
+            "sendButton": "Send Message",
+            "sending": "Sending...",
+            "sent": "Sent!",
+            "tryAgain": "Try Again",
+            "success": "✅ Message sent successfully!",
+            "error": "❌ Network error. Please try again later.",
+            "fail": "❌ Failed to send message."
+          },
+          "projects": {
+            "viewCode": "View Code",
+            "liveDemo": "Live Demo"
+          },
+          "experience": {
+            "current": "Full-Stack Engineer (Internship)",
+            "company": "ladybirds ai.ltd",
+            "location": "MANCHESTER",
+            "period": "October 2025 - October 2025",
+            "achievements": [
+              "Architected and deployed innovative inCall features, enhancing user experience",
+              "Developed comprehensive datasets for improved speech recognition and intent classification",
+              "Monitored data pipelines for seamless logging and evaluation processes",
+              "Facilitated integration of AskMyGP workflows in pilot deployments to optimise operations",
+              "Led QA efforts for AI outputs, focusing on transcription accuracy and data integrity"
+            ]
+          },
+          "education": {
+            "degree": "Diploma of Higher Education Computer Science",
+            "institution": "UOW College",
+            "location": "Hong Kong",
+            "period": "September 2018 - September 2020"
+          },
+          "skills": [
+            {
+              "name": "JavaScript",
+              "icon": "🟨",
+              "level": "Advanced"
+            },
+            {
+              "name": "HTML5",
+              "icon": "🏗️",
+              "level": "Expert"
+            },
+            {
+              "name": "CSS3",
+              "icon": "🎨",
+              "level": "Expert"
+            },
+            {
+              "name": "Tailwind CSS",
+              "icon": "💨",
+              "level": "Advanced"
+            },
+            {
+              "name": "React",
+              "icon": "⚛️",
+              "level": "Intermediate"
+            },
+            {
+              "name": "Node.js",
+              "icon": "🟢",
+              "level": "Intermediate"
+            },
+            {
+              "name": "Git",
+              "icon": "📚",
+              "level": "Advanced"
+            },
+            {
+              "name": "Figma",
+              "icon": "🎯",
+              "level": "Intermediate"
+            }
+          ],
+          "languages": [
+            {
+              "language": "English",
+              "proficiency": "Fluent"
+            },
+            {
+              "language": "Chinese (Cantonese)",
+              "proficiency": "Fluent"
+            },
+            {
+              "language": "Chinese (Mandarin)",
+              "proficiency": "Fluent"
+            },
+            {
+              "language": "Spanish",
+              "proficiency": "Elementary"
+            },
+            {
+              "language": "German",
+              "proficiency": "Elementary"
+            }
+          ],
+          "footer": {
+            "copyright": "© ManTik — Built with HTML, Tailwind CSS, and JavaScript"
+          }
+        };
+        applyLanguage(LANGUAGES.EN);
+        updateTranslations();
+        // Re-render dynamic content with fallback language
+        renderExperience();
+        renderEducation();
+        renderCertifications();
+        renderSkills();
+        renderLanguages();
+        renderProjects();
+        // Trigger animations for initially visible elements
+        triggerInitialAnimations();
+      }
+      hideLoadingOverlay();
+    } catch(e) {
+      console.warn('Could not initialize language:', e);
+      // Load embedded English as fallback
+      currentTranslations = {
+        "nav": {
+          "viewProjects": "View Projects",
+          "contact": "Contact Me"
+        },
+        "hero": {
+          "title": "Hello, I'm Man Tik.",
+          "subtitle": "I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.",
+          "viewProjects": "View Projects",
+          "contactMe": "Contact Me"
+        },
+        "sections": {
+          "about": "About Me",
+          "workExperience": "Work Experience",
+          "education": "Education",
+          "certifications": "Certifications",
+          "skills": "Skills & Technologies",
+          "languages": "Languages",
+          "projects": "Projects",
+          "contact": "Get In Touch"
+        },
+        "contact": {
+          "info": "Contact Information",
+          "sendMessage": "Send a Message",
+          "namePlaceholder": "Your Name",
+          "emailPlaceholder": "Your Email",
+          "messagePlaceholder": "Message",
+          "sendButton": "Send Message",
+          "sending": "Sending...",
+          "sent": "Sent!",
+          "tryAgain": "Try Again",
+          "success": "✅ Message sent successfully!",
+          "error": "❌ Network error. Please try again later.",
+          "fail": "❌ Failed to send message."
+        },
+        "projects": {
+          "viewCode": "View Code",
+          "liveDemo": "Live Demo"
+        },
+        "certifications": [
+          {
+            "name": "Google Advanced Data Analytics Professional Certificate",
+            "issuer": "Google",
+            "year": "October 2024"
+          },
+          {
+            "name": "Mathematics for Machine Learning Specialization",
+            "issuer": "Imperial College London",
+            "year": "October 2024"
+          },
+          {
+            "name": "CS50X",
+            "issuer": "Harvard University",
+            "year": "September 2024"
+          },
+          {
+            "name": "CS50 Python",
+            "issuer": "Harvard University",
+            "year": "September 2024"
+          }
+        ],
+        "experience": {
+          "current": "Full-Stack Engineer (Internship)",
+          "company": "ladybirds ai.ltd",
+          "location": "MANCHESTER",
+          "period": "October 2025 - October 2025",
+          "achievements": [
+            "Architected and deployed innovative inCall features, enhancing user experience",
+            "Developed comprehensive datasets for improved speech recognition and intent classification",
+            "Monitored data pipelines for seamless logging and evaluation processes",
+            "Facilitated integration of AskMyGP workflows in pilot deployments to optimise operations",
+            "Led QA efforts for AI outputs, focusing on transcription accuracy and data integrity"
+          ]
+        },
+        "education": {
+          "degree": "Diploma of Higher Education Computer Science",
+          "institution": "UOW College",
+          "location": "Hong Kong",
+          "period": "September 2018 - September 2020"
+        },
+        "skills": [
+          {
+            "name": "JavaScript",
+            "icon": "🟨",
+            "level": "Advanced"
+          },
+          {
+            "name": "HTML5",
+            "icon": "🏗️",
+            "level": "Expert"
+          },
+          {
+            "name": "CSS3",
+            "icon": "🎨",
+            "level": "Expert"
+          },
+          {
+            "name": "Tailwind CSS",
+            "icon": "💨",
+            "level": "Advanced"
+          },
+          {
+            "name": "React",
+            "icon": "⚛️",
+            "level": "Intermediate"
+          },
+          {
+            "name": "Node.js",
+            "icon": "🟢",
+            "level": "Intermediate"
+          },
+          {
+            "name": "Git",
+            "icon": "📚",
+            "level": "Advanced"
+          },
+          {
+            "name": "Figma",
+            "icon": "🎯",
+            "level": "Intermediate"
+          }
+        ],
+        "languages": [
+          {
+            "language": "English",
+            "proficiency": "Fluent"
+          },
+          {
+            "language": "Chinese (Cantonese)",
+            "proficiency": "Fluent"
+          },
+          {
+            "language": "Chinese (Mandarin)",
+            "proficiency": "Fluent"
+          },
+          {
+            "language": "Spanish",
+            "proficiency": "Elementary"
+          },
+          {
+            "language": "German",
+            "proficiency": "Elementary"
+          }
+        ],
+        "footer": {
+          "copyright": "© ManTik — Built with HTML, Tailwind CSS, and JavaScript"
+        }
+      };
+      applyLanguage(LANGUAGES.EN);
+      updateTranslations();
+      // Re-render dynamic content with fallback language
+      renderExperience();
+      renderEducation();
+      renderCertifications();
+      renderSkills();
+      renderLanguages();
+      renderProjects();
+      // Trigger animations for initially visible elements
+      triggerInitialAnimations();
+    }
+  }
+
+  // Language toggle
+  const langToggle = document.getElementById('lang-toggle');
+  if (langToggle) {
+    langToggle.addEventListener('click', async () => {
+      try {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        langToggle.classList.add('loading');
+        const currentLang = document.documentElement.getAttribute('data-lang') || LANGUAGES.EN;
+        const langOrder = [LANGUAGES.EN, LANGUAGES.ZH, LANGUAGES.TW];
+        const currentIndex = langOrder.indexOf(currentLang);
+        const nextIndex = (currentIndex + 1) % langOrder.length;
+        const newLang = langOrder[nextIndex];
+
+        const success = await loadLanguage(newLang);
+        if (success) {
+          applyLanguage(newLang);
+          renderExperience();
+          renderEducation();
+          renderCertifications();
+          renderSkills();
+          renderLanguages();
+          await renderProjects();
+          await new Promise(r => setTimeout(r, 1000));
+          await pageTurnCardsOut();
+
+          // Reset animation states to prevent conflicts with page-turn
+          document.querySelectorAll('section').forEach(section => section.classList.remove('animate-in'));
+          document.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible', 'animate-fadeIn'));
+
+          updateTranslations();
+          await pageTurnCardsIn();
+          try {
+            localStorage.setItem(LANG_KEY, newLang);
+          } catch(e) {
+            console.warn('Could not save language preference:', e);
+          }
+        }
+      } catch (error) {
+        console.error('Language switching error:', error);
+      } finally {
+        langToggle.classList.remove('loading');
+        isTransitioning = false;
+      }
+    });
+  } else {
+    console.error('Language toggle button not found!');
+  }
+
+  // Initialize language
+  initLanguage();
 
   // Enhanced scroll animations with intersection observer
   const enhancedObserver = new IntersectionObserver((entries)=>{
@@ -126,53 +1017,111 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Load projects and render cards
-  function renderProjects(projects){
-    const container = document.getElementById('projectsGrid');
-    if(!container) return;
-    container.innerHTML = projects.map(p=>{
-      // Show only first 10 words of description
-      let desc = p.description.split(' ').slice(0, 10).join(' ');
-      if (p.description.split(' ').length > 10) desc += '...';
-
-      // Tech stack badges
-      const techBadges = p.tech ? p.tech.map(tech => `<span class="tech-badge">${tech}</span>`).join('') : '';
-
-      return `
-        <article class="project-card reveal">
-          <div class="mb-3 overflow-hidden rounded-md">
-            <img src="${p.image}" alt="${p.title}" class="w-full h-44 object-cover bg-slate-100 dark:bg-slate-700" />
-          </div>
-          <h4 class="text-lg font-semibold mb-1">${p.title}</h4>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">${desc}</p>
-          ${techBadges ? `<div class="tech-stack mb-3">${techBadges}</div>` : ''}
-          <div class="flex gap-2 flex-wrap">
-            <a href="${p.link}" target="_blank" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md transform hover:scale-105">View Code</a>
-            ${p.demo ? `<a href="${p.demo}" target="_blank" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md transform hover:scale-105">Live Demo</a>` : ''}
-          </div>
-        </article>
-      `;
-    }).join('');
-    // Projects will be observed by the global enhancedObserver
-    observeDynamicItems();
-  }
-
-  fetch('data/projects.json')
-    .then(res=>res.ok ? res.json() : Promise.reject('no projects'))
-    .then(projects => {
-      renderProjects(projects);
-    })
-    .catch(error => {
-      console.error('Error loading projects:', error);
-      // fallback: empty state
-      const container = document.getElementById('projectsGrid');
-      if(container) container.innerHTML = '<p class="text-slate-500">No projects found. Add some to <code>data/projects.json</code>.</p>';
+  // Function to trigger animations for initially visible elements
+  function triggerInitialAnimations() {
+    // Trigger for sections
+    document.querySelectorAll('section').forEach(section => {
+      const rect = section.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight + 50 && rect.bottom > -50; // accounting for rootMargin
+      if (isVisible && !section.classList.contains('animate-in')) {
+        section.classList.add('animate-in');
+        // Add staggered animation for child elements
+        const children = section.querySelectorAll('.reveal');
+        children.forEach((child, index) => {
+          setTimeout(() => {
+            child.classList.add('visible', 'animate-fadeIn');
+          }, index * 100);
+        });
+      }
     });
 
+    // Trigger for individual reveal elements
+    const reveals = document.querySelectorAll('.reveal');
+    reveals.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      if (isVisible && !el.classList.contains('visible')) {
+        el.classList.add('visible', 'animate-fadeIn');
+      }
+    });
+  }
+
+  // Load projects and render cards
+  // Load projects and render project cards
+  function renderProjects(){
+    const viewCodeText = currentTranslations.projects?.viewCode || 'View Code';
+    const liveDemoText = currentTranslations.projects?.liveDemo || 'Live Demo';
+    const projects = currentTranslations.projects?.items;
+
+    if (!projects || !Array.isArray(projects)) {
+      console.warn('Projects data not found or invalid in current language');
+      return;
+    }
+
+    // Load static project data for links and images
+    return fetch('data/projects.json')
+      .then(res=>res.ok ? res.json() : Promise.reject('no projects'))
+      .then(staticProjects => {
+        const container = document.getElementById('projectsGrid');
+        if(!container) return;
+
+        container.innerHTML = projects.map((p, index)=>{
+          const staticProject = staticProjects[index] || {};
+          // Show only first 10 words of description with safety checks
+          let desc = 'No description available';
+          if (p && p.description && typeof p.description === 'string') {
+            let words = p.description.split(' ');
+            desc = words.slice(0, 10).join(' ');
+            if (words.length > 10) desc += '...';
+          }
+
+          // Tech stack badges with safety checks
+          const techBadges = (staticProject.tech && Array.isArray(staticProject.tech)) ?
+            staticProject.tech.map(tech => `<span class="tech-badge">${tech}</span>`).join('') : '';
+
+          // Safe title access
+          const title = (p && p.title) ? p.title : 'Untitled Project';
+
+          return `
+            <article class="project-card reveal">
+              <div class="image-container">
+                <img src="${staticProject.image || 'assets/images/placeholder.png'}" alt="${title}" class="w-full h-44 object-cover bg-slate-100 dark:bg-slate-700" />
+              </div>
+              <div class="content-container">
+                <h4 class="text-lg font-semibold">${title}</h4>
+                <p class="text-sm">${desc}</p>
+                ${techBadges ? `<div class="tech-stack">${techBadges}</div>` : ''}
+              </div>
+              <div class="button-container">
+                <a href="${staticProject.link || '#'}" target="_blank" rel="noopener noreferrer" class="project-btn-primary">${currentTranslations.projects?.viewCode || 'View Code'}</a>
+                ${staticProject.demo ? `<a href="${staticProject.demo}" target="_blank" rel="noopener noreferrer" class="project-btn-secondary">${currentTranslations.projects?.liveDemo || 'Live Demo'}</a>` : ''}
+              </div>
+            </article>
+          `;
+        }).join('');
+        // Projects will be observed by the global enhancedObserver
+        observeDynamicItems();
+        wireGlowEffect();
+      })
+      .catch(error => {
+        console.error('Error loading projects:', error);
+        // fallback: empty state
+        const container = document.getElementById('projectsGrid');
+        if(container) container.innerHTML = '<p class="text-slate-500">No projects found. Add some to <code>data/projects.json</code>.</p>';
+      });
+  }
+
   // Load skills and render skill badges
-  function renderSkills(skills){
-    const container = document.getElementById('skillsGrid');
-    if(!container) return;
+  function renderSkills(){
+    try {
+      // Use translated content from current language file
+      const skills = currentTranslations.skills;
+      if (!skills) {
+        console.warn('Skills data not found in current language');
+        return;
+      }
+      const container = document.getElementById('skillsGrid');
+      if(!container) return;
     container.innerHTML = skills.map(skill=>{
       return `
         <div class="skill-badge reveal group">
@@ -188,111 +1137,129 @@ document.addEventListener('DOMContentLoaded', function() {
     }).join('');
     // Skill badges will be observed by the global enhancedObserver
     observeDynamicItems();
+    wireGlowEffect();
+  } catch (error) {
+    console.error('Error rendering skills:', error);
   }
-
-  fetch('data/skills.json')
-    .then(res=>res.ok ? res.json() : Promise.reject('no skills'))
-    .then(renderSkills)
-    .catch(()=>{
-      // fallback: empty state
-      const container = document.getElementById('skillsGrid');
-      if(container) container.innerHTML = '<p class="text-slate-500">Skills section coming soon...</p>';
-    });
+}
 
   // Load experience and render
-  function renderExperience(experience){
+  function renderExperience(){
+    // Use translated content from current language file
+    const exp = currentTranslations.experience;
+    console.log('Rendering experience', exp);
+    if (!exp) {
+      console.warn('Experience data not found in current language');
+      return;
+    }
+
     const container = document.getElementById('experienceList');
     if(!container) return;
-    container.innerHTML = experience.map(exp=>{
-      const achievements = exp.achievements.map(achievement => `<li class="text-slate-600 dark:text-slate-300 text-sm mb-1">• ${achievement}</li>`).join('');
-      return `
-        <div class="experience-item reveal bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <h5 class="font-semibold text-slate-800 dark:text-slate-200">${exp.position}</h5>
-              <p class="text-indigo-600 dark:text-indigo-400 font-medium">${exp.company}, ${exp.location}</p>
-            </div>
-            <span class="text-sm text-slate-500 dark:text-slate-400">${exp.period}</span>
+
+    const achievements = exp.achievements.map(achievement => `<li class="text-slate-600 dark:text-slate-300 text-sm mb-1">• ${achievement}</li>`).join('');
+    container.innerHTML = `
+      <div class="experience-item reveal group p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h5 class="font-semibold text-slate-800 dark:text-slate-200 text-lg mb-1">${exp.current}</h5>
+            <p class="text-indigo-600 dark:text-indigo-400 font-medium">${exp.company}, ${exp.location}</p>
           </div>
-          <ul class="mt-3 space-y-1">
-            ${achievements}
-          </ul>
+          <span class="text-sm text-slate-700 dark:text-slate-200">${exp.period}</span>
         </div>
-      `;
-    }).join('');
-    observeReveals();
+        <ul class="space-y-2">
+          ${achievements}
+        </ul>
+      </div>
+    `;
+    observeDynamicItems();
+    wireGlowEffect();
   }
 
   // Load education and render
-  function renderEducation(education){
+  function renderEducation(){
+    // Use translated content from current language file
+    const edu = currentTranslations.education;
+    if (!edu) {
+      console.warn('Education data not found in current language');
+      return;
+    }
+
     const container = document.getElementById('educationList');
     if(!container) return;
-    container.innerHTML = education.map(edu=>{
-      return `
-        <div class="education-item reveal bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-          <h5 class="font-semibold text-slate-800 dark:text-slate-200">${edu.degree}</h5>
-          <p class="text-slate-600 dark:text-slate-300">${edu.institution}, ${edu.location}</p>
-          <p class="text-sm text-slate-500 dark:text-slate-400">${edu.period}</p>
+
+    container.innerHTML = `
+      <div class="education-item reveal group p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <h5 class="font-semibold text-slate-800 dark:text-slate-200 text-lg mb-1">${edu.degree}</h5>
+            <p class="text-slate-600 dark:text-slate-300">${edu.institution}, ${edu.location}</p>
+          </div>
+          <span class="text-sm text-slate-700 dark:text-slate-200">${edu.period}</span>
         </div>
-      `;
-    }).join('');
+      </div>
+    `;
     // Education items will be observed by the global enhancedObserver
     observeDynamicItems();
+    wireGlowEffect();
   }
 
   // Load certifications and render
-  function renderCertifications(certifications){
+  function renderCertifications(){
+    // Use translated content from current language file
+    const certifications = currentTranslations.certifications;
+    console.log('Rendering certifications', certifications);
+    if (!certifications) {
+      console.warn('Certifications data not found in current language');
+      return;
+    }
+
     const container = document.getElementById('certificationsList');
     if(!container) return;
+
     container.innerHTML = certifications.map(cert=>{
       return `
-        <div class="certification-item reveal bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-          <h5 class="font-semibold text-slate-800 dark:text-slate-200">${cert.name}</h5>
-          <p class="text-slate-600 dark:text-slate-300">${cert.issuer}</p>
-          <p class="text-sm text-slate-500 dark:text-slate-400">${cert.year}</p>
+        <div class="certification-item reveal group p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h5 class="font-semibold text-slate-800 dark:text-slate-200 text-lg mb-1">${cert.name}</h5>
+              <p class="text-slate-600 dark:text-slate-300">${cert.issuer}</p>
+            </div>
+            <span class="text-sm text-slate-700 dark:text-slate-200">${cert.year}</span>
+          </div>
         </div>
       `;
     }).join('');
     // Certification items will be observed by the global enhancedObserver
     observeDynamicItems();
+    wireGlowEffect();
   }
 
-  fetch('data/experience.json')
-    .then(res=>res.ok ? res.json() : Promise.reject('no experience'))
-    .then(renderExperience)
-    .catch(()=>{ console.log('Experience data not available'); });
-
-  fetch('data/education.json')
-    .then(res=>res.ok ? res.json() : Promise.reject('no education'))
-    .then(renderEducation)
-    .catch(()=>{ console.log('Education data not available'); });
-
-  fetch('data/certifications.json')
-    .then(res=>res.ok ? res.json() : Promise.reject('no certifications'))
-    .then(renderCertifications)
-    .catch(()=>{ console.log('Certifications data not available'); });
-
   // Load languages and render
-  function renderLanguages(languages){
+  function renderLanguages(){
+    // Use translated content from current language file
+    const languages = currentTranslations.languages;
+    if (!languages) {
+      console.warn('Languages data not found in current language');
+      return;
+    }
+
     const container = document.getElementById('languagesGrid');
     if(!container) return;
+
     container.innerHTML = languages.map(lang=>{
       return `
-        <div class="language-item reveal text-center p-4 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-          <div class="text-3xl mb-2">${lang.flag}</div>
-          <h5 class="font-semibold text-slate-800 dark:text-slate-200 mb-1">${lang.language}</h5>
-          <p class="text-sm text-slate-600 dark:text-slate-300">${lang.proficiency}</p>
+        <div class="language-item reveal group">
+          <div class="flex flex-col items-center justify-center p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 text-center">
+            <div class="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">${lang.flag || '🌐'}</div>
+            <h5 class="font-semibold text-slate-800 dark:text-slate-200 text-lg mb-2">${lang.language}</h5>
+            <span class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full">${lang.proficiency}</span>
+          </div>
         </div>
       `;
     }).join('');
     // Language items will be observed by the global enhancedObserver
     observeDynamicItems();
   }
-
-  fetch('data/languages.json')
-    .then(res=>res.ok ? res.json() : Promise.reject('no languages'))
-    .then(renderLanguages)
-    .catch(()=>{ console.log('Languages data not available'); });
 
   // Enhanced contact form with loading states
   const contactForm = document.getElementById('contact-form');
@@ -393,4 +1360,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   `;
   document.head.appendChild(particleStyle);
+
+  // Initialize Lucide icons
+  lucide.createIcons();
+  } catch (error) {
+    console.error('Portfolio initialization error:', error);
+    // Continue with basic functionality even if something fails
+  }
 });

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i18n Test</title>
+</head>
+<body>
+    <h1 data-i18n="hero.title">Default Title</h1>
+    <p data-i18n="hero.subtitle">Default subtitle</p>
+    <button id="lang-toggle">中文</button>
+
+    <script>
+        // Simplified i18n test
+        const LANGUAGES = { EN: 'en', ZH: 'zh' };
+        let currentTranslations = {};
+
+        async function loadLanguage(lang) {
+            try {
+                const response = await fetch(`data/${lang}.json`);
+                if (!response.ok) throw new Error(`Failed to load ${lang}.json`);
+                currentTranslations = await response.json();
+                return true;
+            } catch (error) {
+                console.error('Error loading language file:', error);
+                return false;
+            }
+        }
+
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((current, key) => current && current[key], obj);
+        }
+
+        function updateTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                const translation = getNestedValue(currentTranslations, key);
+                if (translation) {
+                    element.textContent = translation;
+                }
+            });
+        }
+
+        // Test the functionality
+        async function testI18n() {
+            console.log('Testing i18n...');
+
+            // Load English
+            const enSuccess = await loadLanguage('en');
+            console.log('EN load success:', enSuccess);
+            if (enSuccess) {
+                updateTranslations();
+                console.log('EN translations applied');
+            }
+
+            // Switch to Chinese after 2 seconds
+            setTimeout(async () => {
+                const zhSuccess = await loadLanguage('zh');
+                console.log('ZH load success:', zhSuccess);
+                if (zhSuccess) {
+                    updateTranslations();
+                    console.log('ZH translations applied');
+                }
+            }, 2000);
+        }
+
+        // Language toggle
+        document.getElementById('lang-toggle').addEventListener('click', async () => {
+            const currentLang = document.documentElement.getAttribute('data-lang') || 'en';
+            const newLang = currentLang === 'zh' ? 'en' : 'zh';
+
+            const success = await loadLanguage(newLang);
+            if (success) {
+                document.documentElement.setAttribute('data-lang', newLang);
+                updateTranslations();
+                document.getElementById('lang-toggle').textContent = newLang === 'zh' ? 'EN' : '中文';
+                console.log('Switched to:', newLang);
+            }
+        });
+
+        // Start test
+        testI18n();
+    </script>
+</body>
+</html>

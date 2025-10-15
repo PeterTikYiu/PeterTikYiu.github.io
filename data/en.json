@@ -1,0 +1,158 @@
+{
+  "nav": {
+    "viewProjects": "View Projects",
+    "contact": "Contact Me"
+  },
+  "hero": {
+    "title": "Hello, I'm Man Tik.",
+    "subtitle": "I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.",
+    "viewProjects": "View Projects",
+    "contactMe": "Contact Me"
+  },
+  "sections": {
+    "about": "About Me",
+    "workExperience": "Work Experience",
+    "education": "Education",
+    "certifications": "Certifications",
+    "skillsTitle": "Skills & Technologies",
+    "languages": "Languages",
+    "projects": "Projects",
+    "contact": "Get In Touch"
+  },
+  "contact": {
+    "info": "Contact Information",
+    "sendMessage": "Send a Message",
+    "namePlaceholder": "Your Name",
+    "emailPlaceholder": "Your Email",
+    "messagePlaceholder": "Message",
+    "sendButton": "Send Message",
+    "sending": "Sending...",
+    "sent": "Sent!",
+    "tryAgain": "Try Again",
+    "success": "✅ Message sent successfully!",
+    "error": "❌ Network error. Please try again later.",
+    "fail": "❌ Failed to send message."
+  },
+  "projects": {
+    "viewCode": "View Code",
+    "liveDemo": "Live Demo",
+    "items": [
+      {
+        "title": "Weather App",
+        "description": "Displays live weather data using OpenWeatherMap API."
+      },
+      {
+        "title": "Recipe Finder AI",
+        "description": "AI-powered Recipe Finder that personalizes meals, calculates calories, and recommends healthy recipes based on your goals, preferences, and cuisine style."
+      }
+    ]
+  },
+  "certifications": [
+    {
+      "name": "Google Advanced Data Analytics Professional Certificate",
+      "issuer": "Google",
+      "year": "October 2024"
+    },
+    {
+      "name": "Mathematics for Machine Learning Specialization",
+      "issuer": "Imperial College London",
+      "year": "October 2024"
+    },
+    {
+      "name": "CS50X",
+      "issuer": "Harvard University",
+      "year": "September 2024"
+    },
+    {
+      "name": "CS50 Python",
+      "issuer": "Harvard University",
+      "year": "September 2024"
+    }
+  ],
+  "experience": {
+    "current": "Full-Stack Engineer (Internship)",
+    "company": "ladybirds ai.ltd",
+    "location": "MANCHESTER",
+    "period": "October 2025 - October 2025",
+    "achievements": [
+      "Architected and deployed innovative inCall features, enhancing user experience",
+      "Developed comprehensive datasets for improved speech recognition and intent classification",
+      "Monitored data pipelines for seamless logging and evaluation processes",
+      "Facilitated integration of AskMyGP workflows in pilot deployments to optimise operations",
+      "Led QA efforts for AI outputs, focusing on transcription accuracy and data integrity"
+    ]
+  },
+  "education": {
+    "degree": "Diploma of Higher Education Computer Science",
+    "institution": "UOW College",
+    "location": "Hong Kong",
+    "period": "September 2018 - September 2020"
+  },
+  "skills": [
+    {
+      "name": "JavaScript",
+      "icon": "🟨",
+      "level": "Advanced"
+    },
+    {
+      "name": "HTML5",
+      "icon": "🏗️",
+      "level": "Expert"
+    },
+    {
+      "name": "CSS3",
+      "icon": "🎨",
+      "level": "Expert"
+    },
+    {
+      "name": "Tailwind CSS",
+      "icon": "💨",
+      "level": "Advanced"
+    },
+    {
+      "name": "React",
+      "icon": "⚛️",
+      "level": "Intermediate"
+    },
+    {
+      "name": "Node.js",
+      "icon": "🟢",
+      "level": "Intermediate"
+    },
+    {
+      "name": "Git",
+      "icon": "📚",
+      "level": "Advanced"
+    },
+    {
+      "name": "Figma",
+      "icon": "🎯",
+      "level": "Intermediate"
+    }
+  ],
+  "languages": [
+    {
+      "language": "English",
+      "proficiency": "Fluent"
+    },
+    {
+      "language": "Chinese (Cantonese)",
+      "proficiency": "Fluent"
+    },
+    {
+      "language": "Chinese (Mandarin)",
+      "proficiency": "Fluent"
+    },
+    {
+      "language": "Spanish",
+      "proficiency": "Elementary"
+    },
+    {
+      "language": "German",
+      "proficiency": "Elementary"
+    }
+  ],
+  "footer": {
+    "copyright": "© ManTik — Built with HTML, Tailwind CSS, and JavaScript"
+  }
+}
