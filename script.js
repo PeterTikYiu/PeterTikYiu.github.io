@@ -44,6 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const icon = document.getElementById('theme-icon');
     if (icon) {
       icon.innerHTML = isDark ? MOON_ICON : SUN_ICON;
+      // Re-run Lucide to render the injected <i data-lucide> into SVG
+      try {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+      } catch (_) {
+        // non-fatal if lucide is not available yet
+      }
     }
 
     // Update button state
@@ -86,6 +94,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       setTimeout(() => {
         document.documentElement.classList.remove('theme-transitioning');
+        try {
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+        } catch (_) {}
       }, 300);
     });
 
