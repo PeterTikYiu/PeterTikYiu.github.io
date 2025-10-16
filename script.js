@@ -1907,10 +1907,66 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
     
-    // Ensure CTA section is always visible
+    // Ensure CTA section is always visible with amazing entrance animation
     const ctaSection = document.getElementById('cta');
     if (ctaSection) {
-      gsap.set(ctaSection, { opacity: 1, visibility: 'visible' });
+      const ctaBanner = ctaSection.querySelector('.cta-banner');
+      const ctaTitle = ctaSection.querySelector('.cta-title');
+      const ctaSubtitle = ctaSection.querySelector('.cta-subtitle');
+      const ctaBtn = ctaSection.querySelector('.cta-btn');
+      
+      if (ctaBanner) {
+        // Set initial visibility
+        gsap.set([ctaBanner, ctaTitle, ctaSubtitle, ctaBtn], { opacity: 1, visibility: 'visible' });
+        
+        // Create stunning entrance animation
+        const ctaTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: ctaBanner,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          }
+        });
+        
+        // Banner entrance with scale and glow
+        ctaTl.from(ctaBanner, {
+          scale: 0.95,
+          opacity: 0,
+          y: 30,
+          duration: 0.8,
+          ease: 'power3.out'
+        });
+        
+        // Title with gradient shine effect
+        if (ctaTitle) {
+          ctaTl.from(ctaTitle, {
+            y: 20,
+            opacity: 0,
+            duration: 0.7,
+            ease: 'back.out(1.4)'
+          }, '-=0.5');
+        }
+        
+        // Subtitle fade in
+        if (ctaSubtitle) {
+          ctaTl.from(ctaSubtitle, {
+            y: 15,
+            opacity: 0,
+            duration: 0.6,
+            ease: 'power3.out'
+          }, '-=0.4');
+        }
+        
+        // Button with magnetic pop
+        if (ctaBtn) {
+          ctaTl.from(ctaBtn, {
+            scale: 0.9,
+            opacity: 0,
+            duration: 0.7,
+            ease: 'back.out(1.7)'
+          }, '-=0.3');
+        }
+      }
     }
   }
 

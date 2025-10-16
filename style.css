@@ -525,6 +525,11 @@ button:focus {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
+/* Ensure the hero scene provides perspective for 3D flips */
+.hero-section {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
 
 .dark .glass-effect {
   background: rgba(0, 0, 0, 0.2);
@@ -540,13 +545,157 @@ button:focus {
 .section-divider{border:0;height:1px;background:linear-gradient(90deg,rgba(99,102,241,.15),rgba(99,102,241,.4),rgba(99,102,241,.15));margin:2rem auto;max-width:72rem}
 
 /* CTA banner */
-.cta-banner{border:1px solid rgba(99,102,241,.25);border-radius:1rem;padding:1.5rem;background:linear-gradient(135deg,rgba(99,102,241,.07),rgba(168,85,247,.07))}
-.dark .cta-banner{border-color:rgba(129,140,248,.25);background:linear-gradient(135deg,rgba(129,140,248,.1),rgba(168,85,247,.1))}
-.cta-content{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem}
-.cta-content h3{font-size:1.5rem;margin:0;color:#0f172a}
-.cta-content p{margin:0;color:#475569}
-.dark .cta-content h3{color:#f8fafc}
-.dark .cta-content p{color:#cbd5e1}
+.cta-banner {
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 1.5rem;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.07), rgba(168, 85, 247, 0.07));
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cta-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 70% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.cta-banner:hover::before {
+  opacity: 1;
+}
+
+.cta-banner:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.15);
+}
+
+.dark .cta-banner {
+  border-color: rgba(129, 140, 248, 0.25);
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.1), rgba(168, 85, 247, 0.1));
+}
+
+.dark .cta-banner:hover {
+  border-color: rgba(129, 140, 248, 0.4);
+}
+
+.cta-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  max-width: 100%;
+}
+
+.cta-text-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cta-content h3,
+.cta-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+  line-height: 1.3;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cta-content p,
+.cta-subtitle {
+  margin: 0;
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.dark .cta-content h3,
+.dark .cta-title {
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .cta-content p,
+.dark .cta-subtitle {
+  color: #cbd5e1;
+}
+
+.cta-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .cta-content {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .cta-text-wrapper {
+    align-items: center;
+  }
+  
+  .cta-btn {
+    align-self: center;
+  }
+  
+  .cta-content h3,
+  .cta-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* CTA Button pulse animation */
+@keyframes ctaPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(79, 70, 229, 0);
+  }
+}
+
+.cta-btn {
+  animation: ctaPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.cta-btn:hover {
+  animation: none;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* CTA gradient animation */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.cta-title {
+  background-size: 200% auto;
+  animation: gradientShift 4s ease infinite;
+}
 
 /* Back to top */
 .back-to-top{position:fixed;right:1rem;bottom:1rem;width:44px;height:44px;border-radius:.75rem;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px rgba(99,102,241,.2);opacity:0;pointer-events:none;transform:translateY(10px);transition:all .25s ease}
@@ -755,6 +904,30 @@ html,body{height:100%;margin:0;font-family:inherit}
   transform: perspective(1200px) rotateY(90deg) scale(0.95);
   opacity: 0;
 }
+
+/* Disable page-turn effect within hero to keep it fully managed by GSAP */
+.hero-section,
+.hero-section .intro-slide,
+.hero-section .hero-visual {
+  transition: none !important;
+  animation: none !important;
+}
+
+.hero-section.page-turn-enter,
+.hero-section.page-turn-active,
+.hero-section.page-turn-exit,
+.hero-section.page-turn-exit-active,
+.hero-section .intro-slide.page-turn-enter,
+.hero-section .intro-slide.page-turn-active,
+.hero-section .intro-slide.page-turn-exit,
+.hero-section .intro-slide.page-turn-exit-active,
+.hero-section .hero-visual.page-turn-enter,
+.hero-section .hero-visual.page-turn-active,
+.hero-section .hero-visual.page-turn-exit,
+.hero-section .hero-visual.page-turn-exit-active {
+  transform: none !important;
+  opacity: 1 !important;
+}
 /* Fade-in animation for reveal */
 .animate-fadeIn {
   animation: fadeIn 0.7s cubic-bezier(.4,0,.2,1) both;
@@ -767,6 +940,48 @@ html,body{height:100%;margin:0;font-family:inherit}
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* One-time subtle shine sweep on hero title */
+.hero-section h2.shine-once {
+  position: relative;
+  overflow: visible;
+}
+.hero-section h2.shine-once::after {
+  content: '';
+  position: absolute;
+  top: -15%;
+  bottom: -15%;
+  left: -25%;
+  width: 35%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(255,255,255,0.5) 40%,
+    rgba(255,255,255,0.7) 50%,
+    rgba(255,255,255,0.5) 60%,
+    rgba(255,255,255,0) 100%
+  );
+  filter: blur(8px);
+  animation: heroTitleShine 1.2s cubic-bezier(0.4, 0.0, 0.2, 1) 0.1s both;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+@keyframes heroTitleShine {
+  0% { 
+    transform: translateX(0) skewX(-18deg); 
+    opacity: 0; 
+  }
+  15% { 
+    opacity: 1; 
+  }
+  85% {
+    opacity: 1;
+  }
+  100% { 
+    transform: translateX(280%) skewX(-18deg); 
+    opacity: 0; 
   }
 }
 
@@ -857,12 +1072,13 @@ input,textarea,button{font-family:inherit}
 
 /* Hero section with gradient background */
 .hero-section {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(147, 51, 234, 0.03) 100%);
-  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04) 0%, rgba(147, 51, 234, 0.04) 100%);
+  border-radius: 1.5rem;
   position: relative;
   overflow: hidden;
-  padding: 2rem;
+  padding: 2.5rem;
   margin: 2rem 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hero-section::before {
@@ -872,9 +1088,15 @@ input,textarea,button{font-family:inherit}
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.02) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.02) 0%, transparent 50%);
+  background: radial-gradient(circle at 25% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 60%),
+              radial-gradient(circle at 75% 25%, rgba(147, 51, 234, 0.03) 0%, transparent 60%);
   pointer-events: none;
+  animation: heroGlow 8s ease-in-out infinite;
+}
+
+@keyframes heroGlow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 /* Starfield canvas behind hero content */
@@ -889,6 +1111,26 @@ input,textarea,button{font-family:inherit}
 .split-lines { display: inline-block; }
 .split-line { display: block; overflow: hidden; }
 .split-char { display: inline-block; will-change: transform, opacity; }
+/* Keep gradient text visible after splitting into spans */
+.hero-section h2 .split-char {
+  background: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+/* Propagate gradient from h2 to split wrappers so children can inherit it */
+.hero-section h2 .split-lines,
+.hero-section h2 .split-line {
+  background: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* Ensure the base h2 also participates in gradient text on WebKit */
+.hero-section h2 {
+  -webkit-text-fill-color: transparent;
+}
 
 /* 3D tilt + shine base */
 .tilt {
