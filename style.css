@@ -124,6 +124,7 @@
   transition: all 0.3s ease !important;
   box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3) !important;
   min-width: 112px !important; /* Slightly narrower for mobile */
+  min-height: 44px !important; /* Match overall button height */
   text-align: center !important;
 }
 
@@ -357,6 +358,8 @@ section { padding: 4rem 0; }
   border-radius: 0.75rem;
   font-weight: 600;
   font-size: 0.875rem;
+  line-height: 1;
+  min-height: 44px;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
@@ -379,6 +382,8 @@ section { padding: 4rem 0; }
   border-radius: 0.75rem;
   font-weight: 600;
   font-size: 0.875rem;
+  line-height: 1;
+  min-height: 44px;
   transition: all 0.3s ease;
   cursor: pointer;
   display: inline-flex;
@@ -484,6 +489,9 @@ button:focus {
     padding: 1.5rem 1rem;
     gap: 1.5rem;
   }
+  /* Square icon buttons on mobile header (only icon-only controls) */
+  .custom-header #lang-toggle,
+  .custom-header #theme-toggle { width: 44px !important; height: 44px !important; padding: 0 !important; }
 
   h1 { font-size: 1.8rem; }
   h2 { font-size: 1.6rem; }
@@ -497,11 +505,22 @@ button:focus {
   .project-card h4 { font-size: 1rem !important; -webkit-line-clamp: 2; line-clamp: 2; }
   .project-card p { -webkit-line-clamp: 3; line-clamp: 3; margin-bottom: 0.75rem !important; }
   .project-card .button-container { gap: 0.5rem; padding-top: 0.75rem; }
-  .project-card .button-container a { padding: 0.6rem 1rem !important; min-width: 0 !important; flex: 1 1 auto; }
+  .project-card .button-container a { padding: 0.6rem 1rem !important; min-width: 0 !important; flex: 1 1 auto; width: 100%; }
   .tech-badge { font-size: 0.7rem; padding: 0.3rem 0.6rem; }
 
   /* Section spacing tighter on mobile */
   section { padding: 2.5rem 0; }
+}
+
+/* Tiny phones: stack project buttons full width for perfect match */
+@media (max-width: 480px) {
+  .project-card .button-container { flex-direction: column; }
+  .project-card .button-container a { width: 100% !important; }
+}
+
+/* Small tablets: keep two equal-width buttons */
+@media (min-width: 481px) and (max-width: 768px) {
+  .project-card .button-container a { flex: 1 1 calc(50% - 0.25rem); }
 }
 
 /* Enhanced visual elements */
@@ -603,8 +622,8 @@ button:focus {
   color: #333 !important; /* dark text */
   border: none !important;
   transition: all 0.2s ease;
-  min-width: 40px !important;
-  min-height: 40px !important;
+  min-width: 44px !important; /* consistent touch target */
+  min-height: 44px !important; /* consistent touch target */
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -615,6 +634,12 @@ button:focus {
   transform: translateY(-1px);
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
+.custom-header a.custom-btn { padding: 0.5rem 0.75rem !important; height: auto !important; }
+.custom-header a.custom-btn .btn-text{ font-weight: 600; font-size: 0.875rem; line-height: 1; }
+@media (max-width: 768px){
+  .custom-header a.custom-btn{ max-width: 120px; }
+  .custom-header a.custom-btn .btn-text{ font-size: clamp(0.75rem, 3.5vw, 0.875rem); }
+}
 .dark .custom-header .custom-btn {
   background-color: #25304a !important; /* original in dark mode */
   color: #f5f7fa !important;
@@ -623,6 +648,9 @@ button:focus {
   background-color: #334155 !important; /* slightly lighter on hover in dark mode */
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
 }
+/* Consistent icon size inside header buttons */
+.custom-header .custom-btn i,
+.custom-header .custom-btn svg { width: 20px; height: 20px; }
 /* Custom header color override */
 .custom-header {
   background-color: #add8e6 !important; /* light blue in light mode */
