@@ -561,9 +561,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // Always start in English on fresh load regardless of saved preference
       let lang = LANGUAGES.EN;
 
-  // Initial sequence: show loader for 1s, then render (no page turn on initial load)
+  // Initial sequence: NO DELAY - instant load for maximum impact!
       showLoadingOverlay();
-      await new Promise(r => setTimeout(r, 1000));
+      // REMOVED 1 second delay - instant loading!
 
       const success = await loadLanguage(lang);
       if (success) {
@@ -575,15 +575,18 @@ document.addEventListener('DOMContentLoaded', function() {
         renderSkills();
         renderLanguages();
         await renderProjects();
-  // Pop-in animation on initial load
-  await pageTurnCardsIn();
-  // Also ensure any remaining reveal elements fade in
-  triggerInitialAnimations();
-  // Schedule hero intro immediately for instant impact
+  
+  // CRITICAL: Start hero intro IMMEDIATELY - don't wait for page turn!
   try { 
     Hero.resetIntroState();
     Hero.scheduleIntro();
   } catch(_) {}
+  
+  // Pop-in animation runs in parallel (non-blocking)
+  pageTurnCardsIn();
+  // Also ensure any remaining reveal elements fade in
+  triggerInitialAnimations();
+  
         try { localStorage.setItem(LANG_KEY, LANGUAGES.EN); } catch(_) {}
       } else {
         // Fallback to embedded English (correct schema)
@@ -733,15 +736,17 @@ document.addEventListener('DOMContentLoaded', function() {
         renderSkills();
         renderLanguages();
   renderProjects();
-  // Pop-in animation on initial load (fallback path)
-  await pageTurnCardsIn();
-  // Trigger animations for initially visible elements
-  triggerInitialAnimations();
-  // Schedule hero intro immediately
+  
+  // CRITICAL: Start hero intro IMMEDIATELY
   try { 
     Hero.resetIntroState();
     Hero.scheduleIntro();
   } catch(_) {}
+  
+  // Pop-in animation runs in parallel (non-blocking)
+  pageTurnCardsIn();
+  // Trigger animations for initially visible elements
+  triggerInitialAnimations();
       }
       hideLoadingOverlay();
     } catch(e) {
@@ -1545,68 +1550,68 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
       
-      // Ultra-smooth character entrance
+      // ULTRA-FAST character reveal - start immediately at 0
       tl.to(chars, {
         yPercent: 0,
         rotateX: 0,
         opacity: 1,
         scale: 1,
         filter: 'blur(0px)',
-        duration: 1.4,
-        stagger: { 
-          each: 0.02, 
+        duration: 1.0,
+        ease: 'power4.out',
+        stagger: {
+          each: 0.015,
           from: 'start',
-          ease: 'power2.inOut'
+          ease: 'power2.out'
         }
-      });
+      }, 0); // Start at 0 - NO DELAY!
       
-      // Hero visual with smooth scale and fade
+      // Hero visual - start almost immediately
       if (heroVis) {
         tl.from(heroVis, { 
-          scale: 0.92,
-          y: 30, 
-          opacity: 0, 
-          duration: 1.2, 
-          ease: 'power3.out',
-          clearProps: 'all'
-        }, 0.1);
-      }
-      
-      // Subtitle with elegant fade
-      if (subEl) {
-        tl.from(subEl, { 
-          y: 20, 
+          scale: 0.95,
           opacity: 0, 
           duration: 0.9, 
           ease: 'power3.out',
           clearProps: 'all'
-        }, '-=0.7');
+        }, 0.15); // Minimal delay for smooth overlap
       }
       
-      // Chips with bouncy entrance
-      if (chips && chips.length) {
-        tl.from(chips, { 
-          scale: 0.8,
-          y: 15, 
-          opacity: 0, 
-          duration: 0.6, 
-          ease: 'back.out(1.4)', 
-          stagger: 0.08,
-          clearProps: 'all'
-        }, '-=0.5');
-      }
-      
-      // CTAs with magnetic reveal
-      if (ctas && ctas.length) {
-        tl.from(ctas, { 
-          scale: 0.9,
+      // Subtitle - quick fade
+      if (subEl) {
+        tl.from(subEl, { 
           y: 15, 
           opacity: 0, 
           duration: 0.7, 
-          ease: 'back.out(1.2)', 
-          stagger: 0.12,
+          ease: 'power3.out',
           clearProps: 'all'
-        }, '-=0.4');
+        }, 0.3); // Faster overlap
+      }
+      
+      // Chips - snappy entrance
+      if (chips && chips.length) {
+        tl.from(chips, { 
+          scale: 0.85,
+          y: 12, 
+          opacity: 0, 
+          duration: 0.5, 
+          ease: 'back.out(1.7)', 
+          stagger: 0.05,
+          clearProps: 'all'
+        }, 0.4); // Quick succession
+      }
+      
+      // CTAs - instant magnetic reveal
+      if (ctas && ctas.length) {
+        tl.from(ctas, { 
+          scale: 0.9,
+          y: 12, 
+          opacity: 0, 
+          duration: 0.6, 
+          ease: 'back.out(1.5)', 
+          stagger: 0.08,
+          clearProps: 'all'
+        }, 0.5); // Immediate follow-up
       }
       
       tl.add(() => {
@@ -1624,18 +1629,18 @@ document.addEventListener('DOMContentLoaded', function() {
       if (window.__heroIntroRaf1) cancelAnimationFrame(window.__heroIntroRaf1);
       if (window.__heroIntroRaf2) cancelAnimationFrame(window.__heroIntroRaf2);
       
-      // Run immediately for instant impact - no delay
-      window.__heroIntroRaf1 = requestAnimationFrame(() => {
-        if (!window.__heroIntroDone && !window.__langSwitching) {
-          try { intro(); } catch(_) {}
-        }
-      });
+      // INSTANT TRIGGER - Run animation immediately with zero delay!
+      try { 
+        intro(); 
+      } catch(e) {
+        console.error('Hero intro error:', e);
+      }
       
-      // Safety: if still not visible after 1s, force show text to avoid invisible gradient
+      // Safety: if still not visible after 800ms, force show text
       if (window.__heroIntroSafety) clearTimeout(window.__heroIntroSafety);
       window.__heroIntroSafety = setTimeout(() => {
         if (!window.__heroIntroDone) showTextNow();
-      }, 1000);
+      }, 800);
     }
 
     function flip(direction) {
