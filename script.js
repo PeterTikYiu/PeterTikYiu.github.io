@@ -941,9 +941,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const newLang = langOrder[nextIndex];
       try {
         // Animate current content out first and flip hero out
-  await pageTurnCardsOut();
+        await pageTurnCardsOut();
         await Hero.flip('out');
         try { Hero.resetIntroState(); } catch(_) {}
+
+        // Wait a bit to ensure flip out is complete before updating DOM
+        await new Promise(r => setTimeout(r, 100));
 
         const success = await loadLanguage(newLang);
         if (success) {
@@ -968,6 +971,9 @@ document.addEventListener('DOMContentLoaded', function() {
       } catch (err) {
         console.error('Language switch failed:', err);
       } finally {
+        // Wait a bit before flip in to ensure DOM is updated
+        await new Promise(r => setTimeout(r, 50));
+        
         // Always bring hero back and cards in, then run hero intro on translated text
         try { await Hero.flip('in'); } catch(_) {}
         try { await pageTurnCardsIn(); } catch(_) {}
@@ -1672,9 +1678,15 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         if (direction === 'out') {
+          // First, hide the text content immediately to prevent old language showing
+          const titleEl = document.querySelector('.hero-section h2');
+          const subtitle = document.querySelector('.hero-section .text-lg');
+          if (titleEl) titleEl.style.opacity = '0';
+          if (subtitle) subtitle.style.opacity = '0';
+          
           gsap.to(els, { 
             rotateY: 90, 
-            opacity: 0.3,
+            opacity: 0,
             z: -30, 
             duration: 0.45, 
             ease: 'power3.in', 
@@ -1682,6 +1694,12 @@ document.addEventListener('DOMContentLoaded', function() {
             onComplete: resolve 
           });
         } else {
+          // Ensure text is hidden before flip-in starts
+          const titleEl = document.querySelector('.hero-section h2');
+          const subtitle = document.querySelector('.hero-section .text-lg');
+          if (titleEl) titleEl.style.opacity = '0';
+          if (subtitle) subtitle.style.opacity = '0';
+          
           gsap.set(els, { rotateY: -90, opacity: 0, z: -30 });
           gsap.to(els, { 
             rotateY: 0, 
@@ -1694,7 +1712,6 @@ document.addEventListener('DOMContentLoaded', function() {
               cleanup();
               
               // CRITICAL FIX: Force rebuild hero text with fresh gradient after flip
-              const titleEl = document.querySelector('.hero-section h2');
               if (titleEl) {
                 // Delete cached text to force complete rebuild
                 delete titleEl.dataset.rawText;
@@ -1711,7 +1728,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     ch.style.filter = 'none';
                   });
                 }
+                
+                // Show title and subtitle after rebuild
+                titleEl.style.opacity = '1';
               }
+              if (subtitle) subtitle.style.opacity = '1';
               
               resolve(); 
             } 
@@ -1724,6 +1745,8 @@ document.addEventListener('DOMContentLoaded', function() {
               ch.style.opacity = '1';
               ch.style.visibility = 'visible';
             });
+            if (titleEl) titleEl.style.opacity = '1';
+            if (subtitle) subtitle.style.opacity = '1';
           }, 800);
         }
       });
