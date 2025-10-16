@@ -1968,6 +1968,74 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     }
+    
+    // Enhanced Contact Section Animations
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      // Ensure all contact elements are visible first
+      const allContactElements = contactSection.querySelectorAll('.contact-card, .contact-card-title, .contact-item-enhanced, .form-group, .social-btn');
+      gsap.set(allContactElements, { opacity: 1, visibility: 'visible', clearProps: 'transform' });
+      
+      // Animate contact title
+      const contactTitle = contactSection.querySelector('.contact-title');
+      if (contactTitle) {
+        gsap.set(contactTitle, { opacity: 1, visibility: 'visible' });
+        gsap.from(contactTitle, {
+          y: 30,
+          opacity: 0,
+          scale: 0.95,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: contactTitle,
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        });
+      }
+      
+      // Animate contact badges with stagger
+      const badges = contactSection.querySelectorAll('.badge-enhanced');
+      if (badges.length) {
+        gsap.set(badges, { opacity: 1, visibility: 'visible' });
+        gsap.from(badges, {
+          y: 20,
+          opacity: 0,
+          scale: 0.9,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'back.out(1.4)',
+          scrollTrigger: {
+            trigger: badges[0],
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        });
+      }
+      
+      // Animate contact cards - SIMPLIFIED to ensure visibility
+      const contactCards = contactSection.querySelectorAll('.contact-card');
+      if (contactCards.length) {
+        contactCards.forEach((card) => {
+          // Force all elements inside card to be visible
+          gsap.set(card, { opacity: 1, visibility: 'visible' });
+          gsap.set(card.querySelectorAll('*'), { opacity: 1, visibility: 'visible' });
+          
+          // Simple card entrance animation
+          gsap.from(card, {
+            y: 30,
+            opacity: 0,
+            duration: 0.7,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            }
+          });
+        });
+      }
+    }
   }
 
   // Reinitialize all fancy animations after content updates
