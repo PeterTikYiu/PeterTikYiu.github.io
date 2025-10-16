@@ -38,7 +38,7 @@
   </head>
   <body class="bg-white text-slate-800 antialiased dark:bg-slate-900 dark:text-slate-100 transition-theme">
     <div id="page-turn-wrapper" class="relative">
-    <header class="custom-header w-full p-6">
+  <header class="custom-header w-full p-6">
       <div class="max-w-5xl mx-auto flex items-center justify-between">
         <div class="flex items-center gap-4">
           <div class="hero-profile">
@@ -68,7 +68,12 @@
     </header>    <main class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-theme max-w-6xl mx-auto px-8 pb-24">
       <section class="hero-section grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16 py-16">
         <div class="intro-slide">
-          <h2 class="text-5xl font-bold mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent" data-i18n="hero.title">Hello, I’m Man Tik.</h2>
+          <h2 class="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent" data-i18n="hero.title">Hello, I’m Man Tik.</h2>
+          <div class="chips-row mb-4">
+            <span class="chip">Front‑End</span>
+            <span class="chip">JavaScript</span>
+            <span class="chip">Open to Work</span>
+          </div>
           <p class="text-xl text-slate-600 dark:text-slate-300 mb-8" data-i18n="hero.subtitle">I build responsive, accessible web interfaces using JavaScript and modern CSS. Welcome to my portfolio.</p>
           <div class="flex gap-4 flex-wrap">
             <a href="#projects" class="btn-primary">
@@ -88,6 +93,8 @@
           </div>
         </div>
       </section>
+
+  <hr class="section-divider" />
 
       <section id="about" class="mb-16">
         <h3 class="text-2xl font-semibold mb-8 text-center flex items-center justify-center gap-2">
@@ -110,6 +117,8 @@
         </div>
       </section>
 
+  <hr class="section-divider" />
+
       <section id="skills" class="mb-16">
         <h3 class="text-2xl font-semibold mb-8 text-center flex items-center justify-center gap-2">
           <i data-lucide="code" class="w-6 h-6"></i>
@@ -118,6 +127,8 @@
         <div id="skillsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto"></div>
       </section>
 
+  <hr class="section-divider" />
+
       <section id="languages" class="mb-16">
         <h3 class="text-2xl font-semibold mb-8 text-center flex items-center justify-center gap-2">
           <i data-lucide="globe" class="w-6 h-6"></i>
@@ -125,6 +136,8 @@
         </h3>
         <div id="languagesGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-4xl mx-auto"></div>
       </section>
+
+  <hr class="section-divider" />
 
       <section id="projects" class="mb-12">
         <h3 class="text-2xl font-semibold mb-4 flex items-center gap-2">
@@ -225,11 +238,29 @@
           </div>
         </div>
       </section>
+
+      <section id="cta" class="mb-12">
+        <div class="cta-banner max-w-6xl mx-auto">
+          <div class="cta-content">
+            <h3>Let’s build something great together</h3>
+            <p>Available for full‑time roles and freelance projects. I respond within 24 hours.</p>
+            <a href="#contact" class="btn-primary">
+              <span>Contact Me</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="max-w-5xl mx-auto p-6 text-center text-sm text-slate-500" data-i18n="footer.copyright">
       © ManTik — Built with HTML, Tailwind CSS, and JavaScript
     </footer>
+
+    <!-- Back to top floating button -->
+    <button id="back-to-top" class="back-to-top" aria-label="Back to top" title="Back to top">
+      <i data-lucide="chevron-up" class="w-5 h-5"></i>
+    </button>
 
     <script src="script.js"></script>
     </div> <!-- end page-turn-wrapper -->
