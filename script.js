@@ -162,8 +162,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Card-only page turn helpers
   function getCardElements() {
+    // Exclude .intro-slide from page-turn; GSAP controls hero for smoother animation
     return Array.from(document.querySelectorAll(
-      '.project-card, .experience-item, .education-item, .certification-item, .skill-badge, .language-item, .intro-slide'
+      '.project-card, .experience-item, .education-item, .certification-item, .skill-badge, .language-item'
     ));
   }
 
@@ -551,12 +552,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize language with fallback chain: localStorage -> en (default)
   async function initLanguage() {
     try {
-      const stored = localStorage.getItem(LANG_KEY);
-      let lang = LANGUAGES.EN; // default
-
-      if (stored && Object.values(LANGUAGES).includes(stored)) {
-        lang = stored;
-      }
+      // Always start in English on fresh load regardless of saved preference
+      let lang = LANGUAGES.EN;
 
   // Initial sequence: show loader for 1s, then render (no page turn on initial load)
       showLoadingOverlay();
@@ -576,6 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         await pageTurnCardsIn();
         // Also ensure any remaining reveal elements fade in
         triggerInitialAnimations();
+        try { localStorage.setItem(LANG_KEY, LANGUAGES.EN); } catch(_) {}
       } else {
         // Fallback to embedded English (correct schema)
         currentTranslations = {
@@ -1388,15 +1386,27 @@ document.addEventListener('DOMContentLoaded', function() {
     if (prefersReduced || typeof gsap === 'undefined') return;
     const chars = splitHeroTitle();
     if (!chars) return;
-    gsap.set(chars, { yPercent: 120, rotateX: -90, opacity: 0, filter: 'blur(6px)', transformOrigin: '50% 100%' });
-    gsap.to(chars, {
+    const titleEl = document.querySelector('.hero-section h2');
+    const heroVis = document.querySelector('.hero-visual');
+    // Hint GPU
+    gsap.set([titleEl, heroVis], { willChange: 'transform,opacity' });
+    gsap.set(chars, { yPercent: 120, rotateX: -90, opacity: 0, filter: 'blur(6px)', transformOrigin: '50% 100%', force3D: true });
+    const tl = gsap.timeline();
+    tl.to(chars, {
       yPercent: 0,
       rotateX: 0,
       opacity: 1,
       filter: 'blur(0px)',
-      ease: 'expo.out',
-      duration: 1.1,
-      stagger: { each: 0.02, from: 'start' }
+      ease: 'power4.out',
+      duration: 1.25,
+      stagger: { each: 0.015, from: 'start' }
+    });
+    if (heroVis) {
+      tl.from(heroVis, { y: 24, opacity: 0, duration: 0.9, ease: 'power3.out' }, 0.1);
+    }
+    tl.add(() => {
+      // Clean up will-change to reduce memory after anim
+      gsap.set([titleEl, heroVis], { willChange: 'auto' });
     });
   }
 
@@ -1515,7 +1525,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || prefersReduced) return;
     gsap.registerPlugin(ScrollTrigger);
     // Parallax hero image
-    const heroImg = document.querySelector('.hero-section img');
+  const heroImg = document.querySelector('.hero-visual img');
     if (heroImg) {
       gsap.to(heroImg, {
         yPercent: 8,

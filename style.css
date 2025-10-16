@@ -444,13 +444,9 @@ section { padding: 4rem 0; }
   }
 }
 
-.intro-slide {
-  animation: slideInFromLeft 1s ease-out;
-}
-
-.hero-section > div:last-child {
-  animation: slideInFromRight 1s ease-out 0.2s both;
-}
+/* Let GSAP control hero intro; avoid conflicting CSS animations */
+.intro-slide { will-change: transform, opacity; }
+.hero-visual img { will-change: transform; }
 
 /* Enhanced loading states */
 .loading {
