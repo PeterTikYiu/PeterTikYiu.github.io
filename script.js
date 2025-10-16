@@ -1,14 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Left-to-right intro animation (JS only, from far left)
-  var intro = document.querySelector('.intro-slide');
-  if (intro) {
-    intro.style.opacity = '0';
-    intro.style.transform = 'translateX(-300px)'; // farther left
-    setTimeout(function() {
-      intro.style.transition = 'opacity 1.1s cubic-bezier(.4,0,.2,1), transform 1.1s cubic-bezier(.4,0,.2,1)';
-      intro.style.opacity = '1';
-      intro.style.transform = 'translateX(0)';
-    }, 200);
+  // Disable legacy left-to-right intro when GSAP is present to avoid double hero animation
+  if (typeof gsap === 'undefined') {
+    var intro = document.querySelector('.intro-slide');
+    if (intro) {
+      intro.style.opacity = '0';
+      intro.style.transform = 'translateX(-300px)';
+      setTimeout(function() {
+        intro.style.transition = 'opacity 1.1s cubic-bezier(.4,0,.2,1), transform 1.1s cubic-bezier(.4,0,.2,1)';
+        intro.style.opacity = '1';
+        intro.style.transform = 'translateX(0)';
+      }, 200);
+    }
   }
 
   // Theme: initialize from localStorage with explicit state management
@@ -163,9 +165,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Card-only page turn helpers
   function getCardElements() {
     // Exclude .intro-slide from page-turn; GSAP controls hero for smoother animation
-    return Array.from(document.querySelectorAll(
+    const all = Array.from(document.querySelectorAll(
       '.project-card, .experience-item, .education-item, .certification-item, .skill-badge, .language-item'
     ));
+    const hero = document.querySelector('.hero-section');
+    if (!hero) return all;
+    // Filter out any elements inside hero subtree just in case
+    return all.filter(el => !hero.contains(el));
   }
 
   function pageTurnCardsOut() {
@@ -569,10 +575,15 @@ document.addEventListener('DOMContentLoaded', function() {
         renderSkills();
         renderLanguages();
         await renderProjects();
-        // Pop-in animation on initial load
-        await pageTurnCardsIn();
-        // Also ensure any remaining reveal elements fade in
-        triggerInitialAnimations();
+  // Pop-in animation on initial load
+  await pageTurnCardsIn();
+  // Also ensure any remaining reveal elements fade in
+  triggerInitialAnimations();
+  // Schedule hero intro immediately for instant impact
+  try { 
+    Hero.resetIntroState();
+    Hero.scheduleIntro();
+  } catch(_) {}
         try { localStorage.setItem(LANG_KEY, LANGUAGES.EN); } catch(_) {}
       } else {
         // Fallback to embedded English (correct schema)
@@ -726,6 +737,11 @@ document.addEventListener('DOMContentLoaded', function() {
   await pageTurnCardsIn();
   // Trigger animations for initially visible elements
   triggerInitialAnimations();
+  // Schedule hero intro immediately
+  try { 
+    Hero.resetIntroState();
+    Hero.scheduleIntro();
+  } catch(_) {}
       }
       hideLoadingOverlay();
     } catch(e) {
@@ -897,6 +913,11 @@ document.addEventListener('DOMContentLoaded', function() {
   await pageTurnCardsIn();
   // Trigger animations for initially visible elements
   triggerInitialAnimations();
+  // Schedule hero intro immediately
+  try { 
+    Hero.resetIntroState();
+    Hero.scheduleIntro();
+  } catch(_) {}
     }
   }
 
@@ -906,41 +927,69 @@ document.addEventListener('DOMContentLoaded', function() {
     langToggle.addEventListener('click', async () => {
       if (isTransitioning) return;
       isTransitioning = true;
+      window.__langSwitching = true;
       langToggle.classList.add('loading');
       const currentLang = document.documentElement.getAttribute('data-lang') || LANGUAGES.EN;
       const langOrder = [LANGUAGES.EN, LANGUAGES.ZH, LANGUAGES.TW];
       const currentIndex = langOrder.indexOf(currentLang);
       const nextIndex = (currentIndex + 1) % langOrder.length;
       const newLang = langOrder[nextIndex];
+      try {
+        // Animate current content out first and flip hero out
+  await pageTurnCardsOut();
+        await Hero.flip('out');
+        try { Hero.resetIntroState(); } catch(_) {}
 
-      // Animate current content out first
-      await pageTurnCardsOut();
+        const success = await loadLanguage(newLang);
+        if (success) {
+          applyLanguage(newLang);
 
-      const success = await loadLanguage(newLang);
-      if (success) {
-        applyLanguage(newLang);
+          // Reset animation states to prevent conflicts with page-turn
+          document.querySelectorAll('section').forEach(section => section.classList.remove('animate-in'));
+          document.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible', 'animate-fadeIn'));
 
-        // Reset animation states to prevent conflicts with page-turn
-        document.querySelectorAll('section').forEach(section => section.classList.remove('animate-in'));
-        document.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible', 'animate-fadeIn'));
+          updateTranslations();
 
-        updateTranslations();
-        renderExperience();
-        renderEducation();
-        renderCertifications();
-        renderSkills();
-        renderLanguages();
-        await renderProjects();
-        await pageTurnCardsIn();
-        try {
-          localStorage.setItem(LANG_KEY, newLang);
-        } catch(e) {
-          console.warn('Could not save language preference:', e);
+          // Re-render dynamic content for new language
+          renderExperience();
+          renderEducation();
+          renderCertifications();
+          renderSkills();
+          renderLanguages();
+          await renderProjects();
+
+          try { localStorage.setItem(LANG_KEY, newLang); } catch(e) { console.warn('Could not save language preference:', e); }
         }
+      } catch (err) {
+        console.error('Language switch failed:', err);
+      } finally {
+        // Always bring hero back and cards in, then run hero intro on translated text
+        try { await Hero.flip('in'); } catch(_) {}
+        try { await pageTurnCardsIn(); } catch(_) {}
+        try { Hero.scheduleIntro(); } catch(_) {}
+        
+        // Re-trigger ScrollTrigger animations for new content
+        try { initParallaxAndStaggers(); } catch(_) {}
+        
+        // Reinitialize icons after content change
+        try {
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+        } catch(_) {}
+        
+        // Cleanup any stray page-turn classes from hero subtree
+        try {
+          const hero = document.querySelector('.hero-section');
+          if (hero) hero.querySelectorAll('.page-turn-enter,.page-turn-active,.page-turn-exit,.page-turn-exit-active').forEach(el => {
+            el.classList.remove('page-turn-enter','page-turn-active','page-turn-exit','page-turn-exit-active');
+          });
+        } catch(_) {}
+        
+        langToggle.classList.remove('loading');
+        isTransitioning = false;
+        window.__langSwitching = false;
       }
-
-      langToggle.classList.remove('loading');
-      isTransitioning = false;
     });
   } else {
     console.error('Language toggle button not found!');
@@ -952,6 +1001,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Enhanced scroll animations with intersection observer
   const enhancedObserver = new IntersectionObserver((entries)=>{
     entries.forEach(entry=>{
+      // Skip hero section: GSAP controls hero animations exclusively
+      if (entry.target.classList && entry.target.classList.contains('hero-section')) {
+        enhancedObserver.unobserve(entry.target);
+        return;
+      }
       if(entry.isIntersecting){
         entry.target.classList.add('animate-in');
         // Add staggered animation for child elements
@@ -971,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Observe all sections initially
   document.querySelectorAll('section').forEach(el => {
-    enhancedObserver.observe(el);
+    if (!el.classList.contains('hero-section')) enhancedObserver.observe(el);
   });
 
   // Function to observe dynamically added items
@@ -988,6 +1042,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function triggerInitialAnimations() {
     // Trigger for sections
     document.querySelectorAll('section').forEach(section => {
+      if (section.classList.contains('hero-section')) return; // Skip hero
       const rect = section.getBoundingClientRect();
       const isVisible = rect.top < window.innerHeight + 50 && rect.bottom > -50; // accounting for rootMargin
       if (isVisible && !section.classList.contains('animate-in')) {
@@ -1201,11 +1256,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('languagesGrid');
     if(!container) return;
 
+    const flagFor = (name) => {
+      const s = String(name || '').toLowerCase();
+      if (/english|英語|英语/.test(s)) return '🇬🇧';
+      if (/cantonese|粵語|粤语/.test(s)) return '🇭🇰';
+      if (/mandarin|普通話|普通话/.test(s)) return '🇨🇳';
+      if (/spanish|西班牙/.test(s)) return '🇪🇸';
+      if (/german|德語|德语/.test(s)) return '🇩🇪';
+      return '🌐';
+    };
+
     container.innerHTML = languages.map(lang=>{
       return `
         <div class="language-item reveal group">
           <div class="flex flex-col items-center justify-center p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 text-center">
-            <div class="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">${lang.flag || '🌐'}</div>
+            <div class="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">${lang.flag || flagFor(lang.language)}</div>
             <h5 class="font-semibold text-slate-800 dark:text-slate-200 text-lg mb-2">${lang.language}</h5>
             <span class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full">${lang.proficiency}</span>
           </div>
@@ -1214,6 +1279,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }).join('');
     // Language items will be observed by the global enhancedObserver
     observeDynamicItems();
+    wireGlowEffect();
   }
 
   // Enhanced contact form with loading states
@@ -1294,49 +1360,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Add particle effect to hero section (subtle)
-  const createParticles = () => {
-    const heroSection = document.querySelector('.hero-section');
-    if (!heroSection) return;
-
-    for (let i = 0; i < 20; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      particle.style.cssText = `
-        position: absolute;
-        width: 4px;
-        height: 4px;
-        background: rgba(79, 70, 229, 0.3);
-        border-radius: 50%;
-        pointer-events: none;
-        animation: float ${Math.random() * 10 + 10}s linear infinite;
-        left: ${Math.random() * 100}%;
-        top: ${Math.random() * 100}%;
-        animation-delay: ${Math.random() * 10}s;
-      `;
-      heroSection.appendChild(particle);
-    }
-  };
-
-  createParticles();
-
-  // Add CSS for particles
-  const particleStyle = document.createElement('style');
-  particleStyle.textContent = `
-    @keyframes float {
-      0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-    }
+  // Theme transition smoothing
+  const themeStyle = document.createElement('style');
+  themeStyle.textContent = `
     .theme-transitioning * {
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
     }
   `;
-  document.head.appendChild(particleStyle);
+  document.head.appendChild(themeStyle);
 
-  // Initialize Lucide icons
-  lucide.createIcons();
+  // Initialize Lucide icons (guarded)
+  try {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  } catch (_) {}
 
   // Back to top button behavior
   const backToTop = document.getElementById('back-to-top');
@@ -1361,14 +1399,64 @@ document.addEventListener('DOMContentLoaded', function() {
   // Helper: split text into characters for hero title
   function splitHeroTitle() {
     const title = document.querySelector('.hero-section h2');
-    if (!title || title.__split) return null;
+    if (!title) return null;
     const text = title.textContent.trim();
+    
+    // Capture gradient from title BEFORE checking if already split
+    const cs = getComputedStyle(title);
+    const bgImage = cs.backgroundImage && cs.backgroundImage !== 'none' ? cs.backgroundImage : 'linear-gradient(90deg, #4f46e5, #7c3aed)';
+    const bgSize = cs.backgroundSize || '100% 100%';
+    const bgPos = cs.backgroundPosition || '0% 0%';
+    const bgRepeat = cs.backgroundRepeat || 'no-repeat';
+    
+    // If already split for the same text, just return chars without rebuilding
+    if (title.querySelector('.split-lines') && title.dataset.rawText === text) {
+      // But refresh gradient in case it changed AND ensure all chars are visible
+      const wrapper = title.querySelector('.split-lines');
+      const line = title.querySelector('.split-line');
+      const chars = title.querySelectorAll('.split-char');
+      
+      if (wrapper) {
+        wrapper.style.backgroundImage = bgImage;
+        wrapper.style.backgroundSize = bgSize;
+        wrapper.style.backgroundPosition = bgPos;
+        wrapper.style.backgroundRepeat = bgRepeat;
+      }
+      if (line) {
+        line.style.backgroundImage = bgImage;
+        line.style.backgroundSize = bgSize;
+        line.style.backgroundPosition = bgPos;
+        line.style.backgroundRepeat = bgRepeat;
+      }
+      
+      // CRITICAL: Ensure each character has gradient and is visible
+      chars.forEach(ch => {
+        ch.style.backgroundImage = bgImage;
+        ch.style.backgroundSize = bgSize;
+        ch.style.backgroundPosition = bgPos;
+        ch.style.backgroundRepeat = bgRepeat;
+        ch.style.opacity = '1';
+        ch.style.visibility = 'visible';
+      });
+      
+      return chars;
+    }
+    
     const chars = [...text];
     title.innerHTML = '';
     const wrapper = document.createElement('span');
     wrapper.className = 'split-lines';
+    // Apply gradient directly to wrapper for reliable clipping on children
+    wrapper.style.backgroundImage = bgImage;
+    wrapper.style.backgroundSize = bgSize;
+    wrapper.style.backgroundPosition = bgPos;
+    wrapper.style.backgroundRepeat = bgRepeat;
     const line = document.createElement('span');
     line.className = 'split-line';
+    line.style.backgroundImage = bgImage;
+    line.style.backgroundSize = bgSize;
+    line.style.backgroundPosition = bgPos;
+    line.style.backgroundRepeat = bgRepeat;
     chars.forEach(c => {
       const span = document.createElement('span');
       span.className = 'split-char';
@@ -1377,49 +1465,281 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     wrapper.appendChild(line);
     title.appendChild(wrapper);
-    title.__split = true;
+    title.dataset.rawText = text;
     return title.querySelectorAll('.split-char');
   }
 
-  // Hero cinematic intro
-  function heroIntro() {
-    if (prefersReduced || typeof gsap === 'undefined') return;
-    const chars = splitHeroTitle();
-    if (!chars) return;
-    const titleEl = document.querySelector('.hero-section h2');
-    const heroVis = document.querySelector('.hero-visual');
-    // Hint GPU
-    gsap.set([titleEl, heroVis], { willChange: 'transform,opacity' });
-    gsap.set(chars, { yPercent: 120, rotateX: -90, opacity: 0, filter: 'blur(6px)', transformOrigin: '50% 100%', force3D: true });
-    const tl = gsap.timeline();
-    tl.to(chars, {
-      yPercent: 0,
-      rotateX: 0,
-      opacity: 1,
-      filter: 'blur(0px)',
-      ease: 'power4.out',
-      duration: 1.25,
-      stagger: { each: 0.015, from: 'start' }
-    });
-    if (heroVis) {
-      tl.from(heroVis, { y: 24, opacity: 0, duration: 0.9, ease: 'power3.out' }, 0.1);
+  // Hero module: encapsulates hero-only logic
+  const Hero = (() => {
+    function showTextNow() {
+      const titleEl = document.querySelector('.hero-section h2');
+      if (!titleEl) return;
+      const chars = titleEl.querySelectorAll('.split-char');
+      if (chars && chars.length) {
+        chars.forEach(ch => { ch.style.opacity = '1'; ch.style.transform = 'none'; ch.style.filter = 'none'; });
+      }
     }
-    tl.add(() => {
-      // Clean up will-change to reduce memory after anim
-      gsap.set([titleEl, heroVis], { willChange: 'auto' });
-    });
-  }
+
+    function resetIntroState() {
+      window.__heroIntroDone = false;
+      window.__heroIntroRunning = false;
+      if (window.__heroIntroTimer) { clearTimeout(window.__heroIntroTimer); window.__heroIntroTimer = 0; }
+      if (window.__heroIntroRaf1) { cancelAnimationFrame(window.__heroIntroRaf1); window.__heroIntroRaf1 = 0; }
+      if (window.__heroIntroRaf2) { cancelAnimationFrame(window.__heroIntroRaf2); window.__heroIntroRaf2 = 0; }
+      if (window.__heroIntroSafety) { clearTimeout(window.__heroIntroSafety); window.__heroIntroSafety = 0; }
+    }
+
+    function intro() {
+      if (prefersReduced || typeof gsap === 'undefined') return;
+      if (window.__heroIntroDone || window.__heroIntroRunning) return; // avoid duplicates
+      window.__heroIntroRunning = true;
+      // Cancel any scheduled timers/RAFs now that we're starting
+      if (window.__heroIntroTimer) { clearTimeout(window.__heroIntroTimer); window.__heroIntroTimer = 0; }
+      if (window.__heroIntroRaf1) { cancelAnimationFrame(window.__heroIntroRaf1); window.__heroIntroRaf1 = 0; }
+      if (window.__heroIntroRaf2) { cancelAnimationFrame(window.__heroIntroRaf2); window.__heroIntroRaf2 = 0; }
+      if (window.__heroIntroSafety) { clearTimeout(window.__heroIntroSafety); window.__heroIntroSafety = 0; }
+      
+      const chars = splitHeroTitle();
+      if (!chars || !chars.length) {
+        window.__heroIntroRunning = false;
+        return;
+      }
+      
+      const titleEl = document.querySelector('.hero-section h2');
+      const heroVis = document.querySelector('.hero-visual');
+      const subEl = document.querySelector('.hero-section p[data-i18n="hero.subtitle"]');
+      const chips = document.querySelectorAll('.hero-section .chips-row .chip');
+      const ctas = document.querySelectorAll('.hero-section .btn-primary, .hero-section .btn-secondary');
+
+      // Enhanced smooth animation - ensure everything is visible and properly set
+      gsap.set([titleEl, heroVis, subEl, chips, ctas], { 
+        willChange: 'transform,opacity', 
+        opacity: 1,
+        visibility: 'visible',
+        clearProps: 'transform'
+      });
+      
+      // Ultra-smooth character reveal with refined easing
+      gsap.set(chars, { 
+        yPercent: 100, 
+        rotateX: -75, 
+        opacity: 0, 
+        scale: 0.9,
+        filter: 'blur(8px)', 
+        transformOrigin: '50% 100%', 
+        force3D: true 
+      });
+      
+      if (titleEl) titleEl.classList.add('shine-once');
+
+      const tl = gsap.timeline({ 
+        defaults: { ease: 'power4.out' },
+        onComplete: () => {
+          // Ensure text is fully visible on complete
+          if (titleEl) titleEl.style.opacity = '1';
+          chars.forEach(ch => {
+            ch.style.opacity = '1';
+            ch.style.transform = 'none';
+            ch.style.filter = 'none';
+          });
+        }
+      });
+      
+      // Ultra-smooth character entrance
+      tl.to(chars, {
+        yPercent: 0,
+        rotateX: 0,
+        opacity: 1,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 1.4,
+        stagger: { 
+          each: 0.02, 
+          from: 'start',
+          ease: 'power2.inOut'
+        }
+      });
+      
+      // Hero visual with smooth scale and fade
+      if (heroVis) {
+        tl.from(heroVis, { 
+          scale: 0.92,
+          y: 30, 
+          opacity: 0, 
+          duration: 1.2, 
+          ease: 'power3.out',
+          clearProps: 'all'
+        }, 0.1);
+      }
+      
+      // Subtitle with elegant fade
+      if (subEl) {
+        tl.from(subEl, { 
+          y: 20, 
+          opacity: 0, 
+          duration: 0.9, 
+          ease: 'power3.out',
+          clearProps: 'all'
+        }, '-=0.7');
+      }
+      
+      // Chips with bouncy entrance
+      if (chips && chips.length) {
+        tl.from(chips, { 
+          scale: 0.8,
+          y: 15, 
+          opacity: 0, 
+          duration: 0.6, 
+          ease: 'back.out(1.4)', 
+          stagger: 0.08,
+          clearProps: 'all'
+        }, '-=0.5');
+      }
+      
+      // CTAs with magnetic reveal
+      if (ctas && ctas.length) {
+        tl.from(ctas, { 
+          scale: 0.9,
+          y: 15, 
+          opacity: 0, 
+          duration: 0.7, 
+          ease: 'back.out(1.2)', 
+          stagger: 0.12,
+          clearProps: 'all'
+        }, '-=0.4');
+      }
+      
+      tl.add(() => {
+        gsap.set([titleEl, heroVis, subEl, chips, ctas], { willChange: 'auto' });
+        if (titleEl) setTimeout(() => titleEl.classList.remove('shine-once'), 700);
+        window.__heroIntroDone = true;
+        window.__heroIntroRunning = false;
+      });
+    }
+
+    function scheduleIntro(delay = 0) {
+      if (window.__langSwitching) return;
+      if (window.__heroIntroDone) return; // skip if already played
+      if (window.__heroIntroTimer) clearTimeout(window.__heroIntroTimer);
+      if (window.__heroIntroRaf1) cancelAnimationFrame(window.__heroIntroRaf1);
+      if (window.__heroIntroRaf2) cancelAnimationFrame(window.__heroIntroRaf2);
+      
+      // Run immediately for instant impact - no delay
+      window.__heroIntroRaf1 = requestAnimationFrame(() => {
+        if (!window.__heroIntroDone && !window.__langSwitching) {
+          try { intro(); } catch(_) {}
+        }
+      });
+      
+      // Safety: if still not visible after 1s, force show text to avoid invisible gradient
+      if (window.__heroIntroSafety) clearTimeout(window.__heroIntroSafety);
+      window.__heroIntroSafety = setTimeout(() => {
+        if (!window.__heroIntroDone) showTextNow();
+      }, 1000);
+    }
+
+    function flip(direction) {
+      return new Promise(resolve => {
+        if (prefersReduced || typeof gsap === 'undefined') return resolve();
+        const hero = document.querySelector('.hero-section');
+        const introEl = document.querySelector('.hero-section .intro-slide');
+        const visual = document.querySelector('.hero-visual');
+        const els = [introEl, visual].filter(Boolean);
+        if (!els.length) return resolve();
+        if (hero) gsap.set(hero, { perspective: 1200, transformStyle: 'preserve-3d' });
+        gsap.set(els, { 
+          transformStyle: 'preserve-3d', 
+          backfaceVisibility: 'hidden', 
+          willChange: 'transform,opacity', 
+          transformOrigin: '50% 50%', 
+          force3D: true 
+        });
+        
+        const cleanup = () => { 
+          try { 
+            gsap.set(els, { clearProps: 'transform,will-change,backfaceVisibility' }); 
+            // Ensure visibility after cleanup
+            els.forEach(el => {
+              el.style.opacity = '1';
+              el.style.visibility = 'visible';
+            });
+          } catch(_) {} 
+        };
+        
+        if (direction === 'out') {
+          gsap.to(els, { 
+            rotateY: 90, 
+            opacity: 0.3,
+            z: -30, 
+            duration: 0.45, 
+            ease: 'power3.in', 
+            stagger: 0.03, 
+            onComplete: resolve 
+          });
+        } else {
+          gsap.set(els, { rotateY: -90, opacity: 0, z: -30 });
+          gsap.to(els, { 
+            rotateY: 0, 
+            opacity: 1,
+            z: 0, 
+            duration: 0.6, 
+            ease: 'power3.out', 
+            stagger: 0.03, 
+            onComplete: () => { 
+              cleanup();
+              
+              // CRITICAL FIX: Force rebuild hero text with fresh gradient after flip
+              const titleEl = document.querySelector('.hero-section h2');
+              if (titleEl) {
+                // Delete cached text to force complete rebuild
+                delete titleEl.dataset.rawText;
+                
+                // Rebuild split text with fresh gradient
+                const chars = splitHeroTitle();
+                
+                // Ensure all characters are visible with gradient applied
+                if (chars && chars.length) {
+                  chars.forEach(ch => {
+                    ch.style.opacity = '1';
+                    ch.style.visibility = 'visible';
+                    ch.style.transform = 'none';
+                    ch.style.filter = 'none';
+                  });
+                }
+              }
+              
+              resolve(); 
+            } 
+          });
+          setTimeout(() => {
+            cleanup();
+            // Extra safety: ensure text visibility
+            const chars = document.querySelectorAll('.hero-section .split-char');
+            chars.forEach(ch => {
+              ch.style.opacity = '1';
+              ch.style.visibility = 'visible';
+            });
+          }, 800);
+        }
+      });
+    }
+
+    return { intro, scheduleIntro, flip, resetIntroState };
+  })();
 
   // Starfield background for hero
   function initStarfield() {
     const hero = document.querySelector('.hero-section');
     if (!hero) return;
+    // Prevent duplicate initialization across re-renders
+    if (hero.dataset.starfieldInit === '1') return;
     let canvas = hero.querySelector('canvas.starfield');
     if (!canvas) {
       canvas = document.createElement('canvas');
       canvas.className = 'starfield';
       hero.prepend(canvas);
     }
+    hero.dataset.starfieldInit = '1';
     const ctx = canvas.getContext('2d');
     let w, h, dpr;
     const STAR_COUNT = 180;
@@ -1524,8 +1844,12 @@ document.addEventListener('DOMContentLoaded', function() {
   function initParallaxAndStaggers() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || prefersReduced) return;
     gsap.registerPlugin(ScrollTrigger);
+    
+    // Kill all existing ScrollTriggers to avoid duplicates
+    ScrollTrigger.getAll().forEach(st => st.kill());
+    
     // Parallax hero image
-  const heroImg = document.querySelector('.hero-visual img');
+    const heroImg = document.querySelector('.hero-visual img');
     if (heroImg) {
       gsap.to(heroImg, {
         yPercent: 8,
@@ -1538,36 +1862,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
     }
-    // Section headers float in
-    document.querySelectorAll('section h3').forEach(h => {
+    
+    // Section headers float in - make sure they're visible first
+    document.querySelectorAll('section:not(.hero-section) h3').forEach(h => {
+      // Ensure element is visible before animating
+      gsap.set(h, { opacity: 1, visibility: 'visible' });
       gsap.from(h, {
         y: 24,
         opacity: 0,
         duration: 0.8,
         ease: 'power3.out',
-        scrollTrigger: { trigger: h, start: 'top 80%' }
+        scrollTrigger: { 
+          trigger: h, 
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        }
       });
     });
-    // Stagger items in grids
-    const grids = ['#projectsGrid .project-card', '#skillsGrid .skill-badge', '#languagesGrid > div'];
+    
+    // Stagger items in grids with ScrollTrigger - ensure visibility
+    const grids = ['#projectsGrid .project-card', '#skillsGrid .skill-badge', '#languagesGrid > div', '#experienceList > div', '#educationList > div', '#certificationsList > div'];
     grids.forEach(sel => {
       const items = document.querySelectorAll(sel);
       if (items.length) {
+        // Set items visible first
+        gsap.set(items, { opacity: 1, visibility: 'visible' });
         gsap.from(items, {
           y: 20,
           opacity: 0,
           stagger: 0.06,
           duration: 0.6,
           ease: 'power2.out',
-          scrollTrigger: { trigger: items[0].closest('section') || items[0], start: 'top 80%' }
+          scrollTrigger: { 
+            trigger: items[0].closest('section') || items[0], 
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
         });
       }
     });
+    
+    // Ensure CTA section is always visible
+    const ctaSection = document.getElementById('cta');
+    if (ctaSection) {
+      gsap.set(ctaSection, { opacity: 1, visibility: 'visible' });
+    }
   }
 
   // Reinitialize all fancy animations after content updates
   function reinitFancy() {
-    try { heroIntro(); } catch(_){}
+    if (window.__langSwitching) return;
     try { initStarfield(); } catch(_){}
     try { initTilt(); } catch(_){}
     try { initMagnetic(); } catch(_){}
