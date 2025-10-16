@@ -881,6 +881,47 @@ input,textarea,button{font-family:inherit}
   pointer-events: none;
 }
 
+/* Starfield canvas behind hero content */
+.hero-section .starfield {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.hero-section > * { position: relative; z-index: 1; }
+
+/* Hero split text styling */
+.split-lines { display: inline-block; }
+.split-line { display: block; overflow: hidden; }
+.split-char { display: inline-block; will-change: transform, opacity; }
+
+/* 3D tilt + shine base */
+.tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.tilt .shine {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(60% 80% at var(--sx,50%) var(--sy,50%), rgba(255,255,255,0.35), rgba(255,255,255,0) 60%);
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.tilt:hover .shine, .tilt:focus-within .shine { opacity: .5; }
+
+/* Magnetic buttons */
+.magnetic {
+  position: relative;
+  will-change: transform;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .split-char { transition: none !important; }
+  .tilt, .magnetic { transform: none !important; }
+}
+
 /* Loading overlay show state */
 #app-loading-overlay.show {
   opacity: 1;

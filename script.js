@@ -498,7 +498,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update elements with data-i18n
     document.querySelectorAll('[data-i18n]').forEach(element => {
       const key = element.getAttribute('data-i18n');
-      const translation = getNestedValue(currentTranslations, key);
+      let translation = getNestedValue(currentTranslations, key);
+      // Provide alias fallbacks for older keys
+      if (!translation) {
+        const aliasMap = {
+          'sections.skillsTitle': ['sections.skills']
+        };
+        if (aliasMap[key]) {
+          for (const alt of aliasMap[key]) {
+            translation = getNestedValue(currentTranslations, alt);
+            if (translation) break;
+          }
+        }
+      }
       if (translation) {
         element.textContent = translation;
       }
@@ -565,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Also ensure any remaining reveal elements fade in
         triggerInitialAnimations();
       } else {
-        // Fallback to embedded English
+        // Fallback to embedded English (correct schema)
         currentTranslations = {
           "nav": {
             "viewProjects": "View Projects",
@@ -581,29 +593,9 @@ document.addEventListener('DOMContentLoaded', function() {
             "about": "About Me",
             "workExperience": "Work Experience",
             "education": "Education",
-            "certifications": [
-              {
-                "name": "Google Advanced Data Analytics Professional Certificate",
-                "issuer": "Google",
-                "year": "October 2024"
-              },
-              {
-                "name": "Mathematics for Machine Learning Specialization",
-                "issuer": "Imperial College London",
-                "year": "October 2024"
-              },
-              {
-                "name": "CS50X",
-                "issuer": "Harvard University",
-                "year": "September 2024"
-              },
-              {
-                "name": "CS50 Python",
-                "issuer": "Harvard University",
-                "year": "September 2024"
-              }
-            ],
+            "certifications": "Certifications",
             "skills": "Skills & Technologies",
+            "skillsTitle": "Skills & Technologies",
             "languages": "Languages",
             "projects": "Projects",
             "contact": "Get In Touch"
@@ -624,7 +616,11 @@ document.addEventListener('DOMContentLoaded', function() {
           },
           "projects": {
             "viewCode": "View Code",
-            "liveDemo": "Live Demo"
+            "liveDemo": "Live Demo",
+            "items": [
+              { "title": "Weather App", "description": "Displays live weather data using OpenWeatherMap API." },
+              { "title": "Recipe Finder AI", "description": "AI-powered Recipe Finder that personalizes meals, calculates calories, and recommends healthy recipes based on your goals, preferences, and cuisine style." }
+            ]
           },
           "experience": {
             "current": "Full-Stack Engineer (Internship)",
@@ -709,6 +705,12 @@ document.addEventListener('DOMContentLoaded', function() {
               "proficiency": "Elementary"
             }
           ],
+          "certifications": [
+            { "name": "Google Advanced Data Analytics Professional Certificate", "issuer": "Google", "year": "October 2024" },
+            { "name": "Mathematics for Machine Learning Specialization", "issuer": "Imperial College London", "year": "October 2024" },
+            { "name": "CS50X", "issuer": "Harvard University", "year": "September 2024" },
+            { "name": "CS50 Python", "issuer": "Harvard University", "year": "September 2024" }
+          ],
           "footer": {
             "copyright": "© ManTik — Built with HTML, Tailwind CSS, and JavaScript"
           }
@@ -730,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
       hideLoadingOverlay();
     } catch(e) {
       console.warn('Could not initialize language:', e);
-      // Load embedded English as fallback
+      // Load embedded English as fallback (correct schema)
       currentTranslations = {
         "nav": {
           "viewProjects": "View Projects",
@@ -748,6 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
           "education": "Education",
           "certifications": "Certifications",
           "skills": "Skills & Technologies",
+          "skillsTitle": "Skills & Technologies",
           "languages": "Languages",
           "projects": "Projects",
           "contact": "Get In Touch"
@@ -768,7 +771,11 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         "projects": {
           "viewCode": "View Code",
-          "liveDemo": "Live Demo"
+          "liveDemo": "Live Demo",
+          "items": [
+            { "title": "Weather App", "description": "Displays live weather data using OpenWeatherMap API." },
+            { "title": "Recipe Finder AI", "description": "AI-powered Recipe Finder that personalizes meals, calculates calories, and recommends healthy recipes based on your goals, preferences, and cuisine style." }
+          ]
         },
         "certifications": [
           {
@@ -908,23 +915,24 @@ document.addEventListener('DOMContentLoaded', function() {
       const nextIndex = (currentIndex + 1) % langOrder.length;
       const newLang = langOrder[nextIndex];
 
+      // Animate current content out first
+      await pageTurnCardsOut();
+
       const success = await loadLanguage(newLang);
       if (success) {
         applyLanguage(newLang);
-        renderExperience();
-        renderEducation();
-        renderCertifications();
-        renderSkills();
-        renderLanguages();
-        await renderProjects();
-        await new Promise(r => setTimeout(r, 1000));
-        await pageTurnCardsOut();
 
         // Reset animation states to prevent conflicts with page-turn
         document.querySelectorAll('section').forEach(section => section.classList.remove('animate-in'));
         document.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible', 'animate-fadeIn'));
 
         updateTranslations();
+        renderExperience();
+        renderEducation();
+        renderCertifications();
+        renderSkills();
+        renderLanguages();
+        await renderProjects();
         await pageTurnCardsIn();
         try {
           localStorage.setItem(LANG_KEY, newLang);
@@ -1345,4 +1353,254 @@ document.addEventListener('DOMContentLoaded', function() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
+
+  // ======================
+  // Crazy animations pack
+  // ======================
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
+
+  // Helper: split text into characters for hero title
+  function splitHeroTitle() {
+    const title = document.querySelector('.hero-section h2');
+    if (!title || title.__split) return null;
+    const text = title.textContent.trim();
+    const chars = [...text];
+    title.innerHTML = '';
+    const wrapper = document.createElement('span');
+    wrapper.className = 'split-lines';
+    const line = document.createElement('span');
+    line.className = 'split-line';
+    chars.forEach(c => {
+      const span = document.createElement('span');
+      span.className = 'split-char';
+      span.textContent = c;
+      line.appendChild(span);
+    });
+    wrapper.appendChild(line);
+    title.appendChild(wrapper);
+    title.__split = true;
+    return title.querySelectorAll('.split-char');
+  }
+
+  // Hero cinematic intro
+  function heroIntro() {
+    if (prefersReduced || typeof gsap === 'undefined') return;
+    const chars = splitHeroTitle();
+    if (!chars) return;
+    gsap.set(chars, { yPercent: 120, rotateX: -90, opacity: 0, filter: 'blur(6px)', transformOrigin: '50% 100%' });
+    gsap.to(chars, {
+      yPercent: 0,
+      rotateX: 0,
+      opacity: 1,
+      filter: 'blur(0px)',
+      ease: 'expo.out',
+      duration: 1.1,
+      stagger: { each: 0.02, from: 'start' }
+    });
+  }
+
+  // Starfield background for hero
+  function initStarfield() {
+    const hero = document.querySelector('.hero-section');
+    if (!hero) return;
+    let canvas = hero.querySelector('canvas.starfield');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.className = 'starfield';
+      hero.prepend(canvas);
+    }
+    const ctx = canvas.getContext('2d');
+    let w, h, dpr;
+    const STAR_COUNT = 180;
+    let stars = [];
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      w = hero.clientWidth; h = hero.clientHeight;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // rebuild stars
+      stars = new Array(STAR_COUNT).fill(0).map(() => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        z: Math.random() * 0.8 + 0.2,
+        r: Math.random() * 1.2 + 0.2,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.2
+      }));
+    }
+    resize();
+    let rafId = 0;
+    let running = true;
+    function render() {
+      if (!running) return;
+      ctx.clearRect(0, 0, w, h);
+      for (const s of stars) {
+        s.x += s.vx * s.z;
+        s.y += s.vy * s.z;
+        if (s.x < -5) s.x = w + 5; if (s.x > w + 5) s.x = -5;
+        if (s.y < -5) s.y = h + 5; if (s.y > h + 5) s.y = -5;
+        ctx.globalAlpha = 0.5 * s.z;
+        ctx.fillStyle = '#818cf8';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      rafId = requestAnimationFrame(render);
+    }
+    if (!prefersReduced) render();
+    const onVis = () => { running = document.visibilityState !== 'hidden'; if (running && !rafId) render(); };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('resize', resize);
+  }
+
+  // 3D tilt + shine on cards
+  function initTilt() {
+    if (isTouch) return; // avoid on touch devices
+    const cards = document.querySelectorAll('.project-card, .experience-item, .education-item, .certification-item');
+    cards.forEach(card => {
+      if (card.__tiltBound) return;
+      card.__tiltBound = true;
+      card.classList.add('tilt');
+      if (!card.querySelector('.shine')) {
+        const shine = document.createElement('div');
+        shine.className = 'shine';
+        card.appendChild(shine);
+      }
+      const maxTilt = 10;
+      const damp = 18;
+      let rx = 0, ry = 0;
+      const onMove = (e) => {
+        const rect = card.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width - 0.5;
+        const py = (e.clientY - rect.top) / rect.height - 0.5;
+        ry = px * maxTilt;
+        rx = -py * maxTilt;
+        card.style.setProperty('--sx', (px + 0.5) * 100 + '%');
+        card.style.setProperty('--sy', (py + 0.5) * 100 + '%');
+        card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateZ(0)`;
+      };
+      const onLeave = () => { card.style.transform = 'perspective(800px) rotateX(0) rotateY(0)'; };
+      card.addEventListener('mousemove', onMove);
+      card.addEventListener('mouseleave', onLeave);
+    });
+  }
+
+  // Magnetic buttons
+  function initMagnetic() {
+    if (isTouch) return;
+    const mags = document.querySelectorAll('.btn-primary, .btn-secondary, .custom-header .custom-btn');
+    mags.forEach(el => {
+      if (el.__magBound) return; el.__magBound = true; el.classList.add('magnetic');
+      const strength = 12; // px
+      const onMove = (e) => {
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width/2;
+        const cy = r.top + r.height/2;
+        const dx = (e.clientX - cx) / (r.width/2);
+        const dy = (e.clientY - cy) / (r.height/2);
+        el.style.transform = `translate(${dx*strength}px, ${dy*strength}px)`;
+      };
+      const onLeave = () => { el.style.transform = 'translate(0,0)'; };
+      el.addEventListener('mousemove', onMove);
+      el.addEventListener('mouseleave', onLeave);
+    });
+  }
+
+  // Scroll-triggered parallax and reveals
+  function initParallaxAndStaggers() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || prefersReduced) return;
+    gsap.registerPlugin(ScrollTrigger);
+    // Parallax hero image
+    const heroImg = document.querySelector('.hero-section img');
+    if (heroImg) {
+      gsap.to(heroImg, {
+        yPercent: 8,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+    }
+    // Section headers float in
+    document.querySelectorAll('section h3').forEach(h => {
+      gsap.from(h, {
+        y: 24,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: h, start: 'top 80%' }
+      });
+    });
+    // Stagger items in grids
+    const grids = ['#projectsGrid .project-card', '#skillsGrid .skill-badge', '#languagesGrid > div'];
+    grids.forEach(sel => {
+      const items = document.querySelectorAll(sel);
+      if (items.length) {
+        gsap.from(items, {
+          y: 20,
+          opacity: 0,
+          stagger: 0.06,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: items[0].closest('section') || items[0], start: 'top 80%' }
+        });
+      }
+    });
+  }
+
+  // Reinitialize all fancy animations after content updates
+  function reinitFancy() {
+    try { heroIntro(); } catch(_){}
+    try { initStarfield(); } catch(_){}
+    try { initTilt(); } catch(_){}
+    try { initMagnetic(); } catch(_){}
+    try { initParallaxAndStaggers(); } catch(_){}
+  }
+
+  // Run once initially after initial renders and icons
+  setTimeout(reinitFancy, 50);
+
+  // Hook into language changes: re-run after content re-render
+  const origRenderProjects = renderProjects;
+  renderProjects = async function() {
+    const res = await origRenderProjects.apply(this, arguments);
+    reinitFancy();
+    return res;
+  };
+
+  // Also re-run after other sections render (direct rebinding within closure)
+  if (typeof renderSkills === 'function') {
+    const _renderSkills = renderSkills;
+    renderSkills = function() { const r = _renderSkills.apply(this, arguments); reinitFancy(); return r; };
+  }
+  if (typeof renderExperience === 'function') {
+    const _renderExperience = renderExperience;
+    renderExperience = function() { const r = _renderExperience.apply(this, arguments); reinitFancy(); return r; };
+  }
+  if (typeof renderEducation === 'function') {
+    const _renderEducation = renderEducation;
+    renderEducation = function() { const r = _renderEducation.apply(this, arguments); reinitFancy(); return r; };
+  }
+  if (typeof renderCertifications === 'function') {
+    const _renderCertifications = renderCertifications;
+    renderCertifications = function() { const r = _renderCertifications.apply(this, arguments); reinitFancy(); return r; };
+  }
+  if (typeof renderLanguages === 'function') {
+    const _renderLanguages = renderLanguages;
+    renderLanguages = function() { const r = _renderLanguages.apply(this, arguments); reinitFancy(); return r; };
+  }
+
+  // Re-run when theme toggles completes (icons already handled)
+  document.addEventListener('transitionend', (e) => {
+    if (e.target === document.documentElement && e.propertyName === 'background-color') {
+      reinitFancy();
+    }
+  });
 });
